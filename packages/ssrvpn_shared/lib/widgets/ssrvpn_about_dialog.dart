@@ -40,7 +40,7 @@ Future<void> showSsrvpnAboutDialog(
                     onCheckForUpdate();
                   },
                   icon: const Icon(Icons.system_update_alt_rounded),
-                  label: const Text('检查更新'),
+                  label: const Text('下载最新版'),
                 ),
               ),
             ],
