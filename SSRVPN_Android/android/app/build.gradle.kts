@@ -35,7 +35,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-        manifestPlaceholders["appLabel"] = "SSRVPN"
+        manifestPlaceholders["appLabel"] = "清凡VPN"
 
         ndk {
             abiFilters.add("arm64-v8a")
@@ -72,7 +72,7 @@ android {
         getByName("debug") {
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
-            manifestPlaceholders["appLabel"] = "SSRVPN Debug"
+            manifestPlaceholders["appLabel"] = "清凡VPN Debug"
         }
 
         release {
