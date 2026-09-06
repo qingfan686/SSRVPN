@@ -132,6 +132,7 @@ extension _AndroidHomeLifecycleActions on HomeScreenState {
     if (statusIsCurrent && running) {
       _updateHomeState(() => _isConnected = true);
       _schedulePublicIpRefresh();
+      _checkUpdateDelayed();
     }
 
     final pendingAutoConnect = await clashService.consumePendingAutoConnect();
@@ -251,7 +252,35 @@ extension _AndroidHomeLifecycleActions on HomeScreenState {
     });
     if (running) {
       _schedulePublicIpRefresh();
+      _checkUpdateDelayed();
+    } else {
+      _updateCheckTimer?.cancel();
     }
+  }
+
+  void _checkUpdateDelayed() {
+    if (!_isConnected) return;
+    _updateCheckTimer?.cancel();
+    _updateCheckTimer = Timer(const Duration(seconds: 10), () async {
+      if (!mounted ||
+          !_isConnected ||
+          _updateCheckInProgress ||
+          UpdateService.isUpdateUiBusy) {
+        return;
+      }
+      _updateCheckInProgress = true;
+      try {
+        const currentVersion = UpdateService.appVersion;
+        final update = await UpdateService.checkForUpdate(currentVersion);
+        if (update != null && mounted && _isConnected) {
+          context.read<UpdateAvailabilityController>().publish(update);
+        }
+      } catch (e) {
+        AppLogger.warning('Update', '检查更新异常: $e');
+      } finally {
+        _updateCheckInProgress = false;
+      }
+    });
   }
 
   Future<void> _checkForUpdateManually() async {

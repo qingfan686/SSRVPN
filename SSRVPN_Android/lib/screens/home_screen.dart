@@ -70,6 +70,8 @@ class HomeScreenState extends State<HomeScreen>
   Timer? _latencyBatchTimer;
   int? _latencyBatchGeneration;
   Timer? _publicIpTimer;
+  Timer? _updateCheckTimer;
+  bool _updateCheckInProgress = false;
   int _lastRevision = -1;
   int _lastDisplayRevision = -1;
   int _publicIpGeneration = 0;
@@ -167,6 +169,7 @@ class HomeScreenState extends State<HomeScreen>
     _cancelSingleLatencyTest();
     _cancelLatencyBatch();
     _publicIpTimer?.cancel();
+    _updateCheckTimer?.cancel();
     _subscriptionService?.removeListener(_handleSubscriptionServiceChanged);
     _nodeSelectionRefresh.dispose();
     super.dispose();
@@ -269,7 +272,7 @@ class HomeScreenState extends State<HomeScreen>
           onProxyModeChanged: (mode) => _handleProxyModeChanged(mode.name),
           onShowForceProxySites: _showForceProxySitesDialog,
           onShowForceDirectSites: _showForceDirectSitesDialog,
-          onLongPressNode: null,
+          onLongPressNode: (node) => unawaited(_editNode(node)),
         ),
       ),
     );

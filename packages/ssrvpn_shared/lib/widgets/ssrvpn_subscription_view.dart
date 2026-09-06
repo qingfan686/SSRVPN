@@ -353,10 +353,13 @@ class _SubscriptionCard extends StatelessWidget {
       child: Semantics(
         container: true,
         label: subscription.name,
-        hint: null,
+        hint: onEdit == null ? null : (isMobile ? '长按编辑订阅' : '右键编辑订阅'),
         child: GestureDetector(
           key: ValueKey('ssrvpn-subscription-card-${subscription.id}'),
           behavior: HitTestBehavior.opaque,
+          onLongPress: isMobile ? onEdit : null,
+          onSecondaryTapUp:
+              isDesktop && onEdit != null ? (_) => onEdit!() : null,
           child: SsrvpnSurfaceCard(
             padding: const EdgeInsets.all(18),
             radius: 22,
@@ -420,7 +423,18 @@ class _SubscriptionCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    IconButton(
+                      tooltip: '编辑订阅',
+                      onPressed: onEdit,
+                      color: SsrvpnUiTokens.textSecondary,
+                      icon: const Icon(Icons.edit_outlined),
+                    ),
+                    IconButton(
+                      tooltip: '删除订阅',
+                      onPressed: onDelete,
+                      color: SsrvpnUiTokens.error,
+                      icon: const Icon(Icons.delete_outline_rounded),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 14),

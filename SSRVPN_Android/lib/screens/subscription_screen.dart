@@ -21,7 +21,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
     with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
-  final _urlController = TextEditingController(text: "https://xn--jxqr14o.qingfanovo.cc.cd/sub?token=49b16b11a83097a8b229d78468cd71d9&clash");
+  final _urlController = TextEditingController();
   bool _isAdding = false;
   bool _isRefreshing = false;
   bool _isDeleting = false;
@@ -30,15 +30,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
   SubscriptionRefreshCancellation? _refreshCancellation;
 
   bool get _isBusy => _isAdding || _isRefreshing || _isDeleting || _isEditing;
-
-    @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-     final subService = context.read<SubscriptionService>();
-      if (subService.subscriptions.isEmpty) _addSubscription();
-    });
-  }
 
   @override
   void dispose() {
@@ -331,7 +322,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
         onRefresh: _refreshAll,
         onCancelRefresh: _cancelRefresh,
         onDelete: _deleteSubscription,
-        onEdit: null,
+        onEdit: _editSubscription,
         onShowLogs: () => showAndroidDiagnosticsSheet(context),
       ),
     );
