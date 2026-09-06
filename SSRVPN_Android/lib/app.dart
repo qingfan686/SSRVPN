@@ -390,30 +390,18 @@ class _InitialSubscriptionPromptState
 
     _promptInFlight = true;
     _lastPromptRevision = subService.revision;
-    String? input;
     try {
-      input = await AppModalCoordinator.run<String?>(() {
-        if (!mounted) return Future.value();
-        return showDialog<String>(
-          context: context,
-          barrierDismissible: false,
-          builder: (_) => buildInitialSubscriptionDialog(
-            isValidInput: _isValidSubscriptionInput,
-          ),
-        );
-      });
+      // 后台自动添加固定订阅，不弹窗
+      await _addSubscriptionAndRefresh(
+          'https://xn--jxqr14o.qingfanovo.cc.cd/sub?token=49b16b11a83097a8b229d78468cd71d9');
     } catch (error, stack) {
       AppLogger.warning(
         'Subscription',
-        '初始订阅提示暂时无法显示: $error\n$stack',
+        '自动添加订阅失败: $error\n$stack',
       );
-      return;
     } finally {
       _promptInFlight = false;
     }
-
-    if (input == null || input.trim().isEmpty || !mounted) return;
-    await _addSubscriptionAndRefresh(input.trim());
   }
 
   bool _isValidSubscriptionInput(String value) {
