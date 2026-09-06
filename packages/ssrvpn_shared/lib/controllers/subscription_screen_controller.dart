@@ -387,7 +387,7 @@ class SubscriptionScreenController {
       }
 
       final added = await subscriptionService.addSubscription(
-        subscriptionService.defaultSubscriptionName(url),
+        '清凡VPN',
         url,
       );
       return _refreshAfterAdd(
