@@ -12,7 +12,7 @@ Future<void> showSsrvpnAboutDialog(
     panelKey: const Key('ssrvpn-about-glass'),
     scrollKey: const Key('ssrvpn-about-scroll'),
     icon: Icons.vpn_lock_rounded,
-    title: '关于 SSRVPN',
+    title: '关于 清凡公益代理',
     content: Builder(
       builder: (dialogContext) {
         final theme = Theme.of(dialogContext);
@@ -22,7 +22,7 @@ Future<void> showSsrvpnAboutDialog(
             ? Color.lerp(colors.primary, Colors.white, 0.40)!
             : Color.lerp(colors.primary, Colors.black, 0.16)!;
         final thirdPartyUrl =
-            'https://github.com/Elegying/SSRVPN/tree/v${AppConstants.appVersion}/third_party';
+            'https://github.com/qingfan686/SSRVPN/tree/v${AppConstants.appVersion}/third_party';
         return Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
