@@ -15,71 +15,6 @@ class _SubscriptionFilter extends StatelessWidget {
   final ValueChanged<String> onChanged;
   final VoidCallback onSortPressed;
 
-  Future<void> _openPicker(BuildContext context) async {
-    final selected = await showDialog<String>(
-      context: context,
-      builder: (dialogContext) => Dialog(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        insetPadding: const EdgeInsets.symmetric(horizontal: 28, vertical: 36),
-        child: SsrvpnFrostedPanel(
-          key: const Key('ssrvpn-subscription-picker-glass'),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: 420,
-              maxHeight: (MediaQuery.sizeOf(dialogContext).height - 72)
-                  .clamp(180.0, 520.0),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Row(
-                  children: [
-                    Icon(
-                      Icons.rss_feed_rounded,
-                      color: SsrvpnUiTokens.primary,
-                    ),
-                    SizedBox(width: 10),
-                    Text(
-                      '选择订阅',
-                      style: TextStyle(
-                        fontSize: 19,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                Flexible(
-                  child: ListView(
-                    key: const Key('ssrvpn-subscription-picker-list'),
-                    shrinkWrap: true,
-                    children: [
-                      _SubscriptionPickerItem(
-                        label: '全部订阅',
-                        value: _allSubscriptions,
-                        selected: value == _allSubscriptions,
-                      ),
-                      ...groups.map(
-                        (group) => _SubscriptionPickerItem(
-                          label: group,
-                          value: group,
-                          selected: value == group,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-    if (selected != null) onChanged(selected);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Align(
@@ -96,40 +31,6 @@ class _SubscriptionFilter extends StatelessWidget {
               ? Icons.filter_list_off_rounded
               : Icons.sort_rounded,
         ),
-      ),
-    );
-  }
-}
-
-class _SubscriptionPickerItem extends StatelessWidget {
-  const _SubscriptionPickerItem({
-    required this.label,
-    required this.value,
-    required this.selected,
-  });
-
-  final String label;
-  final String value;
-  final bool selected;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      type: MaterialType.transparency,
-      child: ListTile(
-        dense: true,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        selected: selected,
-        selectedTileColor: SsrvpnUiTokens.primary.withValues(alpha: 0.14),
-        leading: Icon(
-          selected ? Icons.check_circle_rounded : Icons.circle_outlined,
-          color:
-              selected ? SsrvpnUiTokens.primary : SsrvpnUiTokens.textTertiary,
-          size: 20,
-        ),
-        title: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
-        onTap: () => Navigator.pop(context, value),
       ),
     );
   }
