@@ -132,7 +132,6 @@ extension _AndroidHomeLifecycleActions on HomeScreenState {
     if (statusIsCurrent && running) {
       _updateHomeState(() => _isConnected = true);
       _schedulePublicIpRefresh();
-      _checkUpdateDelayed();
     }
 
     final pendingAutoConnect = await clashService.consumePendingAutoConnect();

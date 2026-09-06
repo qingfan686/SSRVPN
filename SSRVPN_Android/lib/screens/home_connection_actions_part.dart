@@ -315,7 +315,6 @@ extension _AndroidHomeConnectionActions on HomeScreenState {
           });
           _schedulePublicIpRefresh();
           unawaited(_autoTestAllNodes());
-          _checkUpdateDelayed();
         } else {
           final feedback = resolveAndroidConnectionFeedback(
             connected: false,
