@@ -263,6 +263,13 @@ mixin _ClashDataPlaneSupport {
   }
 
   Future<PublicIpInfo> fetchCurrentPublicIpInfo() async {
+    // 等待本地代理端口就绪，最多等3秒
+    final proxyPort = settings.proxyPort;
+    for (int i = 0; i < 6; i++) {
+      if (await _isPortOpen('127.0.0.1', proxyPort)) break;
+      await Future.delayed(const Duration(milliseconds: 500));
+    }
+
     final client = IOClient(
       HttpClient()
         ..connectionTimeout = const Duration(seconds: 5)
@@ -272,6 +279,21 @@ mixin _ClashDataPlaneSupport {
       return await PublicIpInfoService(client: client).fetch();
     } finally {
       client.close();
+    }
+  }
+
+  /// 检测本地端口是否可连接
+  Future<bool> _isPortOpen(String host, int port) async {
+    try {
+      final socket = await Socket.connect(
+        host,
+        port,
+        timeout: const Duration(milliseconds: 800),
+      );
+      await socket.close();
+      return true;
+    } catch (_) {
+      return false;
     }
   }
 
