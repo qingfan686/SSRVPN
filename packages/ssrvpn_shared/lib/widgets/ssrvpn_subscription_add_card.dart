@@ -49,7 +49,7 @@ class _SubscriptionAddCard extends StatelessWidget {
             key: const Key('ssrvpn-subscription-input'),
             controller: urlController,
             focusNode: inputFocusNode,
-            enabled: !isBusy
+            enabled: !isBusy,
             readOnly: true,
             keyboardType: TextInputType.text,
             textInputAction: TextInputAction.done,
