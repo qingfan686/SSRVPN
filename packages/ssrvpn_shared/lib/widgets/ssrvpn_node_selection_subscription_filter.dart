@@ -82,55 +82,19 @@ class _SubscriptionFilter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label = value == _allSubscriptions ? '全部订阅' : value;
-    return Container(
-      key: ValueKey('ssrvpn-subscription-filter-$value'),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: SsrvpnUiTokens.surface.withValues(alpha: 0.9),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: SsrvpnUiTokens.border),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Semantics(
-                button: true,
-                label: '选择订阅，当前：$label',
-                child: InkWell(
-                  borderRadius: const BorderRadius.horizontal(
-                    left: Radius.circular(18),
-                  ),
-                  onTap: () => _openPicker(context),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 18,
-                      vertical: 15,
-                    ),
-                    child: Text(
-                      label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Container(width: 1, height: 30, color: SsrvpnUiTokens.border),
-            IconButton(
-              key: const Key('ssrvpn-node-latency-sort'),
-              tooltip: sortByLatency ? '恢复默认节点顺序' : '按延迟从低到高排序',
-              onPressed: onSortPressed,
-              color: sortByLatency
-                  ? SsrvpnUiTokens.primary
-                  : SsrvpnUiTokens.textSecondary,
-              icon: Icon(
-                sortByLatency
-                    ? Icons.filter_list_off_rounded
-                    : Icons.sort_rounded,
-              ),
-            ),
-          ],
+    return Align(
+      alignment: Alignment.centerRight,
+      child: IconButton(
+        key: const Key('ssrvpn-node-latency-sort'),
+        tooltip: sortByLatency ? '恢复默认节点顺序' : '按延迟从低到高排序',
+        onPressed: onSortPressed,
+        color: sortByLatency
+            ? SsrvpnUiTokens.primary
+            : SsrvpnUiTokens.textSecondary,
+        icon: Icon(
+          sortByLatency
+              ? Icons.filter_list_off_rounded
+              : Icons.sort_rounded,
         ),
       ),
     );
