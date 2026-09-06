@@ -429,12 +429,6 @@ class _SubscriptionCard extends StatelessWidget {
                       color: SsrvpnUiTokens.textSecondary,
                       icon: const Icon(Icons.edit_outlined),
                     ),
-                    IconButton(
-                      tooltip: '删除订阅',
-                      onPressed: onDelete,
-                      color: SsrvpnUiTokens.error,
-                      icon: const Icon(Icons.delete_outline_rounded),
-                    ),
                   ],
                 ),
                 const SizedBox(height: 14),

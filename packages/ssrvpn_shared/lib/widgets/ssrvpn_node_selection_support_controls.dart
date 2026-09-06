@@ -94,25 +94,6 @@ class _UtilityActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      alignment: WrapAlignment.end,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      spacing: 4,
-      runSpacing: 0,
-      children: [
-        if (onShowForceProxySites != null)
-          TextButton.icon(
-            onPressed: forceProxyEnabled ? onShowForceProxySites : null,
-            icon: const Icon(Icons.add_link_rounded, size: 17),
-            label: const Text('强制代理网站'),
-          ),
-        if (onShowForceDirectSites != null)
-          TextButton.icon(
-            onPressed: forceProxyEnabled ? onShowForceDirectSites : null,
-            icon: const Icon(Icons.link_off_rounded, size: 17),
-            label: const Text('强制直连网站'),
-          ),
-      ],
-    );
+    return const SizedBox.shrink();
   }
 }

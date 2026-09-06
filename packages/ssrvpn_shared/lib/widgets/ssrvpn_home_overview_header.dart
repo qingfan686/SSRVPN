@@ -31,7 +31,7 @@ class _HomeHeader extends StatelessWidget {
                       child: const SsrvpnHomeText('关于',
                           textAlign: TextAlign.center, maxFontSize: 20)))),
           Expanded(
-              child: SsrvpnHomeText('SSRVPN',
+              child: SsrvpnHomeText('清凡VPN',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       color: SsrvpnUiTokens.textPrimary,
