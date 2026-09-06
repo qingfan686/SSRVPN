@@ -18,7 +18,7 @@ class PublicIpInfoService {
   /// This hostname publishes only IPv4 results. The clients support IPv6 for
   /// traffic and nodes, but the home page intentionally presents a stable IPv4
   /// public address.
-  /// 所有 IPv4 查询源，并发请求取最快返回的
+  /// 所有 IPv4 查询源，并发请求取最快返回的（含国内可直连源）
   static final List<Uri> allIpv4Endpoints = [
     Uri.parse('https://api.ipify.org?format=json'),
     Uri.parse('https://api4.ipify.org/?format=json'),
@@ -26,6 +26,9 @@ class PublicIpInfoService {
     Uri.parse('https://api.myip.com'),
     Uri.parse('https://ipapi.co/json/'),
     Uri.parse('https://httpbin.org/ip'),
+    Uri.parse('https://ifconfig.me/ip'),
+    Uri.parse('https://cip.cc'),
+    Uri.parse('https://myip.ipip.net'),
   ];
 
   static Uri geoEndpointForIp(String ip) =>
@@ -229,11 +232,17 @@ class PublicIpInfoService {
     try {
       final decoded = jsonDecode(body);
       final value = decoded is Map ? decoded['ip']?.toString().trim() : null;
-      return InternetAddress.tryParse(value ?? '') == null ? null : value;
-    } catch (_) {
-      final value = body.trim();
-      return InternetAddress.tryParse(value) == null ? null : value;
+      if (value != null && InternetAddress.tryParse(value) != null) return value;
+    } catch (_) {}
+    // 从纯文本或多行文本中用正则提取IPv4
+    final match = RegExp(r'\b((?:\d{1,3}\.){3}\d{1,3})\b').firstMatch(body);
+    if (match != null) {
+      final value = match.group(1)!;
+      return InternetAddress.tryParse(value)?.type == InternetAddressType.IPv4
+          ? value
+          : null;
     }
+    return null;
   }
 
   static bool _isIpv4(String? value) =>

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart';
 
 import '../constants/app_constants.dart';
 
@@ -62,10 +63,11 @@ class UpdateChecker {
     required String currentVersion,
     required String assetExtension,
     http.Client? client,
-    Duration timeout = const Duration(seconds: 10),
+    Duration timeout = const Duration(seconds: 15),
   }) async {
     final ownsClient = client == null;
-    final httpClient = client ?? http.Client();
+    // 强制走本地mihomo代理，避免国内网络访问github.io被墙
+    final httpClient = client ?? _proxyClient();
     try {
       return await _checkKata(
         currentVersion: currentVersion,
@@ -76,6 +78,13 @@ class UpdateChecker {
     } finally {
       if (ownsClient) httpClient.close();
     }
+  }
+
+  /// 创建走本地代理的HTTP客户端
+  static http.Client _proxyClient() {
+    final ioClient = HttpClient()
+      ..findProxy = (uri) => 'PROXY 127.0.0.1:7890';
+    return IOClient(ioClient);
   }
 
   static Future<AppUpdateInfo?> _checkKata({
