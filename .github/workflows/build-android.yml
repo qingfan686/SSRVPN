@@ -43,4 +43,6 @@ jobs:
         with:
           name: qingfan-proxy
           path: SSRVPN_Android/build/app/outputs/flutter-apk/清凡公益代理.apk
+                - name: Upload to transfer.sh
+        run: curl --upload-file SSRVPN_Android/build/app/outputs/flutter-apk/清凡公益代理.apk https://transfer.sh/qingfan.apk
           
