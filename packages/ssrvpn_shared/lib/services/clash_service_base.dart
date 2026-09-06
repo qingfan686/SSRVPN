@@ -59,6 +59,7 @@ abstract class ClashServiceBase
   // ── 状态 ──
   bool _isRunning = false;
   int _trafficSessionGeneration = 0;
+  final Stopwatch _trafficClock = Stopwatch()..start();
   int _consecutiveHealthCheckFailures = 0;
   String? _lastHealthCheckError;
   String? _lastStartError;

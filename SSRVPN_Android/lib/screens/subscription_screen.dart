@@ -321,8 +321,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
         onAdd: _addSubscription,
         onRefresh: _refreshAll,
         onCancelRefresh: _cancelRefresh,
-        onDelete: null,
-        onEdit: null,
+        onDelete: (_) {},
+        onEdit: (_) {},
         onShowLogs: () => showAndroidDiagnosticsSheet(context),
       ),
     );

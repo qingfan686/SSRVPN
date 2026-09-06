@@ -226,7 +226,7 @@ class HomeScreenState extends State<HomeScreen>
         ),
         onShowTutorial: () => _showAndroidHomeTutorialDialog(context),
         onShowLogs: () => showAndroidDiagnosticsSheet(context),
-        onRefreshPublicIp: null,
+        onRefreshPublicIp: () {},
       ),
     );
   }
