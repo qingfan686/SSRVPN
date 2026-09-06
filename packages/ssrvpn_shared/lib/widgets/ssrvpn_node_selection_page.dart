@@ -259,8 +259,7 @@ class _SsrvpnNodeSelectionPageState extends State<SsrvpnNodeSelectionPage> {
               : (enabled) =>
                   _runAction(() => widget.onEnableTunChanged!(enabled)),
         ),
-        if (widget.onShowForceProxySites != null ||
-            widget.onShowForceDirectSites != null) ...[
+        if (false) ...[
           const SizedBox(height: 10),
           _UtilityActions(
             forceProxyEnabled: !selectionBusy,

@@ -12,7 +12,7 @@ Future<void> showSsrvpnAboutDialog(
     panelKey: const Key('ssrvpn-about-glass'),
     scrollKey: const Key('ssrvpn-about-scroll'),
     icon: Icons.vpn_lock_rounded,
-    title: '关于 清凡公益代理',
+    title: '关于 清凡VPN',
     content: Builder(
       builder: (dialogContext) {
         final theme = Theme.of(dialogContext);
@@ -21,8 +21,6 @@ Future<void> showSsrvpnAboutDialog(
         final accentText = theme.brightness == Brightness.dark
             ? Color.lerp(colors.primary, Colors.white, 0.40)!
             : Color.lerp(colors.primary, Colors.black, 0.16)!;
-        final thirdPartyUrl =
-            'https://github.com/qingfan686/SSRVPN/tree/v${AppConstants.appVersion}/third_party';
         return Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,39 +46,29 @@ Future<void> showSsrvpnAboutDialog(
             ],
             const SizedBox(height: 16),
             const Text(
-              '项目地址',
+              '客户端地址',
               style: TextStyle(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 4),
             SelectableText(
-              'https://github.com/Elegying/SSRVPN',
+              'https://github.com/qingfan686/SSRVPN',
               style: TextStyle(color: accentText),
             ),
             const SizedBox(height: 16),
             const Text(
-              '第三方许可与对应源码',
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 4),
-            SelectableText(
-              thirdPartyUrl,
-              style: TextStyle(color: accentText),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              '免责声明',
+              '公告',
               style: TextStyle(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 4),
             Text(
-              '本软件仅供学习与研究使用，请遵守当地法律法规。\n'
-              '使用者应对自身行为承担全部责任。\n'
-              '开发者不对因使用本软件产生的任何后果负责。',
+              '清凡VPN 致力于为用户提供稳定、快速的网络加速服务。\n'
+              '本软件完全免费，请勿用于商业用途。\n'
+              '使用过程中如有问题，请联系作者反馈。',
               style: TextStyle(color: secondaryText, height: 1.45),
             ),
             const SizedBox(height: 16),
             Text(
-              '开发者：Elegying（两颗西柚）',
+              '作者：清凡',
               style: TextStyle(color: secondaryText),
             ),
           ],

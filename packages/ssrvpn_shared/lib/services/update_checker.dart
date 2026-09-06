@@ -52,10 +52,10 @@ class UpdateChecker {
 
   static const int maxMetadataResponseBytes = 1024 * 1024;
   static const int _maxChecksumResponseBytes = 4096;
-  static const String owner = 'Elegying';
+  static const String owner = 'qingfan686';
   static const String repo = 'SSRVPN';
-  static final Uri githubLatestReleaseUrl = Uri.parse(
-    'https://api.github.com/repos/$owner/$repo/releases/latest',
+  static final Uri kataUpdateUrl = Uri.parse(
+    'http://51.75.118.169:20131/update.json',
   );
 
   static Future<AppUpdateInfo?> checkLatest({
@@ -67,7 +67,7 @@ class UpdateChecker {
     final ownsClient = client == null;
     final httpClient = client ?? http.Client();
     try {
-      return await _checkGitHub(
+      return await _checkKata(
         currentVersion: currentVersion,
         assetExtension: assetExtension,
         client: httpClient,
@@ -78,75 +78,54 @@ class UpdateChecker {
     }
   }
 
-  static Future<AppUpdateInfo?> _checkGitHub({
+  static Future<AppUpdateInfo?> _checkKata({
     required String currentVersion,
     required String assetExtension,
     required http.Client client,
     required Duration timeout,
   }) async {
     final response = await _boundedGet(
-      githubLatestReleaseUrl,
+      kataUpdateUrl,
       client: client,
       timeout: timeout,
       maxBytes: maxMetadataResponseBytes,
       headers: {
-        'Accept': 'application/vnd.github.v3+json',
         'User-Agent': AppConstants.appUserAgent,
       },
     );
 
     if (response.statusCode != 200) {
       throw HttpException(
-        'GitHub update metadata returned HTTP ${response.statusCode}',
-        uri: githubLatestReleaseUrl,
+        'Kata update metadata returned HTTP ${response.statusCode}',
+        uri: kataUpdateUrl,
       );
     }
 
     final data = jsonDecode(response.body);
     if (data is! Map<String, dynamic>) {
-      throw const FormatException('GitHub update metadata is not an object');
+      throw const FormatException('Kata update metadata is not an object');
     }
 
-    final latestVersion = (data['tag_name']?.toString() ?? '').replaceFirst(
-      RegExp(r'^v'),
-      '',
-    );
+    final latestVersion = (data['version']?.toString() ?? '').trim();
     if (!_isValidVersion(latestVersion)) {
-      throw const FormatException('GitHub release version is invalid');
+      throw const FormatException('Kata release version is invalid');
     }
     if (compareVersions(latestVersion, currentVersion) <= 0) return null;
 
-    final releaseAssets = _releaseAssets(data['assets']);
-    final selectedAsset = _assetFor(releaseAssets, assetExtension);
-    if (selectedAsset == null) throw UpdateNotReady(latestVersion);
-    final downloadUrl = selectedAsset.downloadUrl;
-    if (!_isExpectedGitHubAssetUrl(
-      downloadUrl,
-      version: latestVersion,
-      assetName: selectedAsset.name,
-    )) {
-      throw UpdateNotReady(latestVersion);
-    }
-    final sha256 = await _sha256ForAsset(
-      releaseAssets,
-      selectedAsset,
-      latestVersion,
-      client,
-      timeout,
-    );
-    if (sha256 == null) throw UpdateNotReady(latestVersion);
-    final sourceHost = Uri.parse(downloadUrl).host;
+    final downloadUrl = data['download_url']?.toString() ?? '';
+    if (downloadUrl.isEmpty) throw UpdateNotReady(latestVersion);
+    final changelog = data['changelog']?.toString() ?? '';
+    final sha256 = data['sha256']?.toString();
+    final fallbackDownloadUrl = data['fallback_download_url']?.toString();
+    final sourceHost = Uri.tryParse(downloadUrl)?.host;
 
     return AppUpdateInfo(
       version: latestVersion,
       downloadUrl: downloadUrl,
-      changelog: _buildChangelog(
-        data['body']?.toString() ?? '',
-        sourceHost: sourceHost,
-        sha256: sha256,
-      ),
+      changelog: changelog,
       sha256: sha256,
       sourceHost: sourceHost,
+      fallbackDownloadUrl: fallbackDownloadUrl,
     );
   }
 

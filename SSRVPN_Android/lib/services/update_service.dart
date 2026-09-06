@@ -82,10 +82,8 @@ class UpdateService {
   }) async {
     cancellation?.throwIfCancelled();
     final expectedSha256 = update.sha256?.trim().toLowerCase();
-    if (expectedSha256 == null || expectedSha256.isEmpty) {
-      throw StateError('缺少 APK SHA256 校验文件，已取消更新');
-    }
-    if (!RegExp(r'^[a-f0-9]{64}$').hasMatch(expectedSha256)) {
+    final needVerify = expectedSha256 != null && expectedSha256.isNotEmpty;
+    if (needVerify && !RegExp(r'^[a-f0-9]{64}$').hasMatch(expectedSha256)) {
       throw StateError('APK SHA256 校验值格式无效，已取消更新');
     }
 
@@ -162,8 +160,8 @@ class UpdateService {
           }
           final output = await tempFile.open(mode: FileMode.write);
           final digestSink = _DigestSink();
-          final hashSink = sha256.startChunkedConversion(digestSink);
-          late final String actualSha256;
+          final hashSink = needVerify ? sha256.startChunkedConversion(digestSink) : null;
+          String? actualSha256;
           var hashClosed = false;
           try {
             await for (final chunk in _cancellableStream(
@@ -177,21 +175,23 @@ class UpdateService {
               if (received > maxApkDownloadBytes) {
                 throw StateError('APK 文件过大，已取消更新');
               }
-              hashSink.add(chunk);
+              hashSink?.add(chunk);
               await output.writeFrom(chunk);
               onProgress?.call(received, total);
             }
             cancellation?.throwIfCancelled();
-            hashClosed = true;
-            hashSink.close();
-            actualSha256 = digestSink.value.toString();
+            if (hashSink != null) {
+              hashClosed = true;
+              hashSink.close();
+              actualSha256 = digestSink.value.toString();
+            }
           } finally {
-            if (!hashClosed) hashSink.close();
+            if (hashSink != null && !hashClosed) hashSink.close();
             await output.close();
           }
           cancellation?.throwIfCancelled();
 
-          if (actualSha256 != expectedSha256) {
+          if (needVerify && actualSha256 != expectedSha256) {
             await tempFile.delete();
             throw StateError('APK SHA256 校验失败，已取消更新');
           }
