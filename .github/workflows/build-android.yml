@@ -23,13 +23,24 @@ jobs:
         working-directory: SSRVPN_Android
         run: flutter pub get
 
+      - name: Generate signing key
+        run: |
+          keytool -genkey -v -keystore $HOME/debug-key.jks -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -alias androiddebugkey -dname "CN=Debug, OU=Debug, O=Debug, L=Debug, S=Debug, C=US"
+          echo "storeFile=$HOME/debug-key.jks" > SSRVPN_Android/android/key.properties
+          echo "storePassword=android" >> SSRVPN_Android/android/key.properties
+          echo "keyAlias=androiddebugkey" >> SSRVPN_Android/android/key.properties
+          echo "keyPassword=android" >> SSRVPN_Android/android/key.properties
+
       - name: Build APK
         working-directory: SSRVPN_Android
         run: flutter build apk --release --target-platform=android-arm64
+
+      - name: Rename APK
+        run: cp SSRVPN_Android/build/app/outputs/flutter-apk/app-release.apk SSRVPN_Android/build/app/outputs/flutter-apk/清凡公益代理.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: qingfan-proxy
-          path: SSRVPN_Android/build/app/outputs/flutter-apk/app-release.apk
+          path: SSRVPN_Android/build/app/outputs/flutter-apk/清凡公益代理.apk
           
