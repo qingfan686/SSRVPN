@@ -31,6 +31,15 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
 
   bool get _isBusy => _isAdding || _isRefreshing || _isDeleting || _isEditing;
 
+    @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+     final subService = context.read<SubscriptionService>();
+      if (subService.subscriptions.isEmpty) _addSubscription();
+    });
+  }
+
   @override
   void dispose() {
     _refreshCancellation?.cancel();
