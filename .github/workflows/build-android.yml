@@ -36,13 +36,14 @@ jobs:
         run: flutter build apk --release --target-platform=android-arm64
 
       - name: Rename APK
-        run: cp SSRVPN_Android/build/app/outputs/flutter-apk/app-release.apk SSRVPN_Android/build/app/outputs/flutter-apk/清凡公益代理.apk
+        run: cp SSRVPN_Android/build/app/outputs/flutter-apk/app-release.apk SSRVPN_Android/build/app/outputs/flutter-apk/qingfan.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: qingfan-proxy
-          path: SSRVPN_Android/build/app/outputs/flutter-apk/清凡公益代理.apk
-                - name: Upload to transfer.sh
-        run: curl --upload-file SSRVPN_Android/build/app/outputs/flutter-apk/清凡公益代理.apk https://transfer.sh/qingfan.apk
-          
+          path: SSRVPN_Android/build/app/outputs/flutter-apk/qingfan.apk
+
+      - name: Upload to transfer.sh
+        run: curl --upload-file SSRVPN_Android/build/app/outputs/flutter-apk/qingfan.apk https://transfer.sh/qingfan.apk
+        
