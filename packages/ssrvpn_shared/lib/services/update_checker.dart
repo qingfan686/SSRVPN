@@ -55,7 +55,7 @@ class UpdateChecker {
   static const String owner = 'qingfan686';
   static const String repo = 'SSRVPN';
   static final Uri kataUpdateUrl = Uri.parse(
-    'http://51.75.118.169:20131/update.json',
+    'https://qingfan686.github.io/SSRVPN/update.json',
   );
 
   static Future<AppUpdateInfo?> checkLatest({
