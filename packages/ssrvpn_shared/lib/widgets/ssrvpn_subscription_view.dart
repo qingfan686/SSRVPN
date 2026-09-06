@@ -183,14 +183,15 @@ class _SsrvpnSubscriptionViewState extends State<SsrvpnSubscriptionView> {
                       ),
                     ],
                     const SizedBox(height: 26),
-                    _SubscriptionAddCard(
-                      urlController: widget.urlController,
-                      inputFocusNode: _inputFocusNode,
-                      addActionKey: _addActionKey,
-                      isAdding: widget.isAdding,
-                      isBusy: widget.isBusy,
-                      onAdd: widget.onAdd,
-                    ),
+                    // 隐藏添加订阅卡片
+                    // _SubscriptionAddCard(
+                    //   urlController: widget.urlController,
+                    //   inputFocusNode: _inputFocusNode,
+                    //   addActionKey: _addActionKey,
+                    //   isAdding: widget.isAdding,
+                    //   isBusy: widget.isBusy,
+                    //   onAdd: widget.onAdd,
+                    // ),
                     const SizedBox(height: 30),
                     _SubscriptionListHeader(
                       count: widget.subscriptions.length,
