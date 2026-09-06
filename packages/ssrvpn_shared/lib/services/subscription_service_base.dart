@@ -39,7 +39,7 @@ abstract class SubscriptionServiceBase extends ChangeNotifier
   static const int maxSubscriptionBytes = 20 * 1024 * 1024;
   static const int processingIsolateThreshold =
       SubscriptionProcessing.isolateThreshold;
-  static const Duration defaultBatchRefreshTimeout = Duration(minutes: 2);
+  static const Duration defaultBatchRefreshTimeout = Duration(seconds: 30);
   static const String proxySourceKey = SubscriptionParser.proxySourceKey;
   static const String standaloneGroupName =
       SubscriptionParser.standaloneGroupName;

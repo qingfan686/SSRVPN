@@ -18,9 +18,15 @@ class PublicIpInfoService {
   /// This hostname publishes only IPv4 results. The clients support IPv6 for
   /// traffic and nodes, but the home page intentionally presents a stable IPv4
   /// public address.
-  static final Uri ipv4Endpoint =
-      Uri.parse('https://api4.ipify.org/?format=json');
-  static final Uri fallbackEndpoint = Uri.parse('https://api.ip.sb/geoip');
+  /// 所有 IPv4 查询源，并发请求取最快返回的
+  static final List<Uri> allIpv4Endpoints = [
+    Uri.parse('https://api.ipify.org?format=json'),
+    Uri.parse('https://api4.ipify.org/?format=json'),
+    Uri.parse('https://api.ip.sb/geoip'),
+    Uri.parse('https://api.myip.com'),
+    Uri.parse('https://ipapi.co/json/'),
+    Uri.parse('https://httpbin.org/ip'),
+  ];
 
   static Uri geoEndpointForIp(String ip) =>
       Uri.https('api.ip.sb', '/geoip/$ip');
@@ -30,41 +36,52 @@ class PublicIpInfoService {
   Future<PublicIpInfo> fetch({
     Duration timeout = const Duration(seconds: 8),
   }) async {
-    final ipv4Info = await _fetchIpv4(timeout);
-    if (ipv4Info != null) return ipv4Info;
+    // 并发请求所有源，取最快成功的
+    final completer = Completer<PublicIpInfo>();
+    var remaining = allIpv4Endpoints.length;
+    final errors = <Object>[];
 
-    final response = await _get(fallbackEndpoint, timeout);
-    if (response.statusCode != 200) {
-      throw PublicIpInfoException('HTTP ${response.statusCode}');
-    }
-    final info = parse(response.body);
-    if (!_isIpv4(info.ip)) {
-      throw const PublicIpInfoException('未获取到公网 IPv4 信息');
-    }
-    return info;
-  }
-
-  Future<PublicIpInfo?> _fetchIpv4(Duration timeout) async {
-    try {
-      final response = await _get(ipv4Endpoint, timeout);
-      if (response.statusCode != 200) return null;
-      final ip = _parseIpOnly(response.body);
-      if (!_isIpv4(ip)) return null;
-
-      try {
-        final geoResponse = await _get(geoEndpointForIp(ip!), timeout);
-        if (geoResponse.statusCode == 200) {
-          final geo = parse(geoResponse.body);
-          if (geo.ip == ip) return geo;
+    for (final endpoint in allIpv4Endpoints) {
+      unawaited(() async {
+        try {
+          final response = await _get(endpoint, const Duration(seconds: 4));
+          if (response.statusCode == 200) {
+            final ip = _parseIpOnly(response.body);
+            if (_isIpv4(ip)) {
+              if (!completer.isCompleted) {
+                completer.complete(PublicIpInfo(ip: ip!, countryCode: ''));
+              }
+              return;
+            }
+            // 尝试解析带地理信息的
+            try {
+              final info = parse(response.body);
+              if (_isIpv4(info.ip) && !completer.isCompleted) {
+                completer.complete(info);
+                return;
+              }
+            } catch (_) {}
+          }
+          throw 'HTTP ${response.statusCode}';
+        } catch (e) {
+          errors.add(e);
+        } finally {
+          remaining--;
+          if (remaining == 0 && !completer.isCompleted) {
+            completer.completeError(
+              PublicIpInfoException('所有 IP 查询源均失败'),
+            );
+          }
         }
-      } catch (_) {
-        // The IPv4 address itself is still useful when the optional country
-        // lookup is unavailable.
-      }
-      return PublicIpInfo(ip: ip!, countryCode: '');
-    } catch (_) {
-      return null;
+      }());
     }
+
+    // 总超时保护
+    final result = await completer.future.timeout(
+      timeout,
+      onTimeout: () => throw const PublicIpInfoException('公网 IP 请求超时'),
+    );
+    return result;
   }
 
   Future<http.Response> _get(Uri uri, Duration timeout) async {

@@ -1,5 +1,5 @@
 {
-  "version": "5.2.0",
-  "changelog": "清凡VPN v5.2.0\n- 极简界面，只保留主页和节点\n- 预置固定订阅，自动加载\n- 去掉订阅/节点编辑功能\n- 优化启动速度",
+  "version": "5.2.1",
+  "changelog": "清凡VPN v5.2.1\n- 更换全新应用图标\n- 修复公网IPv4获取失败（并发多源查询）\n- 大幅优化订阅获取速度（超时2分钟→30秒）\n- 减少订阅重试次数，更快响应",
   "download_url": "https://github.com/qingfan686/SSRVPN/releases/download/latest/qingfan.apk"
 }

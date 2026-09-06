@@ -86,7 +86,7 @@ class SubscriptionService extends SubscriptionServiceBase {
   @override
   Future<String?> fetchSubscription(
     String url, {
-    int maxRetries = 3,
+    int maxRetries = 2,
     SubscriptionRefreshControl? control,
   }) async {
     Exception? lastException;
