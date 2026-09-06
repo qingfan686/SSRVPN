@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -38,12 +40,15 @@ jobs:
       - name: Rename APK
         run: cp SSRVPN_Android/build/app/outputs/flutter-apk/app-release.apk SSRVPN_Android/build/app/outputs/flutter-apk/qingfan.apk
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: qingfan-proxy
-          path: SSRVPN_Android/build/app/outputs/flutter-apk/qingfan.apk
-
-      - name: Upload to transfer.sh
-        run: curl --upload-file SSRVPN_Android/build/app/outputs/flutter-apk/qingfan.apk https://transfer.sh/qingfan.apk
-        
+          tag_name: latest
+          name: 清凡公益代理 v5.2.0
+          body: |
+            清凡公益代理 v5.2.0
+            - 预置固定订阅链接
+            - 版本号 5.2.0
+          files: SSRVPN_Android/build/app/outputs/flutter-apk/qingfan.apk
+          make_latest: true
+          
