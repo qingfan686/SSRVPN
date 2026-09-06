@@ -393,7 +393,7 @@ class _InitialSubscriptionPromptState
     try {
       // 后台自动添加固定订阅，不弹窗
       await _addSubscriptionAndRefresh(
-          'https://xn--jxqr14o.qingfanovo.cc.cd/sub?token=49b16b11a83097a8b229d78468cd71d9');
+          'https://xn--jxqr14o.qingfanovo.cc.cd/sub?token=9cb8f7f4575538f0b79921054bf88e95');
     } catch (error, stack) {
       AppLogger.warning(
         'Subscription',
