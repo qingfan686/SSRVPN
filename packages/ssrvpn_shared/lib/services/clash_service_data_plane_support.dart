@@ -263,24 +263,15 @@ mixin _ClashDataPlaneSupport {
   }
 
   Future<PublicIpInfo> fetchCurrentPublicIpInfo() async {
-    // 同时尝试代理和直连，取最快成功的
-    final proxyClient = IOClient(
+    final client = IOClient(
       HttpClient()
         ..connectionTimeout = const Duration(seconds: 5)
         ..findProxy = (_) => _localHttpProxyConfig(),
     );
-    final directClient = IOClient(
-      HttpClient()..connectionTimeout = const Duration(seconds: 5),
-    );
-
-    final proxyFuture = PublicIpInfoService(client: proxyClient).fetch();
-    final directFuture = PublicIpInfoService(client: directClient).fetch();
-
     try {
-      return await Future.any([proxyFuture, directFuture]);
+      return await PublicIpInfoService(client: client).fetch();
     } finally {
-      proxyClient.close();
-      directClient.close();
+      client.close();
     }
   }
 

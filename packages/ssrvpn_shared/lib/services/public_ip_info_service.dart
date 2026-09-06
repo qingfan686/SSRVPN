@@ -22,13 +22,6 @@ class PublicIpInfoService {
       Uri.parse('https://api4.ipify.org/?format=json');
   static final Uri fallbackEndpoint = Uri.parse('https://api.ip.sb/geoip');
 
-  /// 国内可直连的备用IP查询源
-  static final List<Uri> directFallbackEndpoints = [
-    Uri.parse('https://ifconfig.me/ip'),
-    Uri.parse('https://cip.cc'),
-    Uri.parse('https://myip.ipip.net'),
-  ];
-
   static Uri geoEndpointForIp(String ip) =>
       Uri.https('api.ip.sb', '/geoip/$ip');
 
@@ -39,21 +32,6 @@ class PublicIpInfoService {
   }) async {
     final ipv4Info = await _fetchIpv4(timeout);
     if (ipv4Info != null) return ipv4Info;
-
-    // 国内备用源轮询
-    for (final endpoint in directFallbackEndpoints) {
-      try {
-        final response = await _get(endpoint, const Duration(seconds: 4));
-        if (response.statusCode == 200) {
-          final ip = _parseIpOnly(response.body);
-          if (_isIpv4(ip)) {
-            return PublicIpInfo(ip: ip!, countryCode: '');
-          }
-        }
-      } catch (_) {
-        continue;
-      }
-    }
 
     final response = await _get(fallbackEndpoint, timeout);
     if (response.statusCode != 200) {
@@ -234,17 +212,11 @@ class PublicIpInfoService {
     try {
       final decoded = jsonDecode(body);
       final value = decoded is Map ? decoded['ip']?.toString().trim() : null;
-      if (value != null && InternetAddress.tryParse(value) != null) return value;
-    } catch (_) {}
-    // 从纯文本或多行文本中用正则提取IPv4
-    final match = RegExp(r'\b((?:\d{1,3}\.){3}\d{1,3})\b').firstMatch(body);
-    if (match != null) {
-      final value = match.group(1)!;
-      return InternetAddress.tryParse(value)?.type == InternetAddressType.IPv4
-          ? value
-          : null;
+      return InternetAddress.tryParse(value ?? '') == null ? null : value;
+    } catch (_) {
+      final value = body.trim();
+      return InternetAddress.tryParse(value) == null ? null : value;
     }
-    return null;
   }
 
   static bool _isIpv4(String? value) =>
