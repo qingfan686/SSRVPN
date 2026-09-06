@@ -21,7 +21,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
     with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
-  final _urlController = TextEditingController();
+  final _urlController = TextEditingController(text: "https://xn--jxqr14o.qingfanovo.cc.cd/sub?token=49b16b11a83097a8b229d78468cd71d9");
   bool _isAdding = false;
   bool _isRefreshing = false;
   bool _isDeleting = false;
