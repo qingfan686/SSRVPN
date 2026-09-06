@@ -272,7 +272,7 @@ class HomeScreenState extends State<HomeScreen>
           onProxyModeChanged: (mode) => _handleProxyModeChanged(mode.name),
           onShowForceProxySites: _showForceProxySitesDialog,
           onShowForceDirectSites: _showForceDirectSitesDialog,
-          onLongPressNode: (node) => unawaited(_editNode(node)),
+          onLongPressNode: null,
         ),
       ),
     );
