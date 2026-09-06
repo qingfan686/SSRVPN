@@ -4,7 +4,6 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
-import 'package:http/io_client.dart';
 
 import '../constants/app_constants.dart';
 
@@ -53,23 +52,22 @@ class UpdateChecker {
 
   static const int maxMetadataResponseBytes = 1024 * 1024;
   static const int _maxChecksumResponseBytes = 4096;
-  static const String owner = 'qingfan686';
+  static const String owner = 'Elegying';
   static const String repo = 'SSRVPN';
-  static final Uri kataUpdateUrl = Uri.parse(
-    'https://qingfan686.github.io/SSRVPN/update.json',
+  static final Uri githubLatestReleaseUrl = Uri.parse(
+    'https://api.github.com/repos/$owner/$repo/releases/latest',
   );
 
   static Future<AppUpdateInfo?> checkLatest({
     required String currentVersion,
     required String assetExtension,
     http.Client? client,
-    Duration timeout = const Duration(seconds: 15),
+    Duration timeout = const Duration(seconds: 10),
   }) async {
     final ownsClient = client == null;
-    // 强制走本地mihomo代理，避免国内网络访问github.io被墙
-    final httpClient = client ?? _proxyClient();
+    final httpClient = client ?? http.Client();
     try {
-      return await _checkKata(
+      return await _checkGitHub(
         currentVersion: currentVersion,
         assetExtension: assetExtension,
         client: httpClient,
@@ -80,61 +78,75 @@ class UpdateChecker {
     }
   }
 
-  /// 创建走本地代理的HTTP客户端
-  static http.Client _proxyClient() {
-    final ioClient = HttpClient()
-      ..findProxy = (uri) => 'PROXY 127.0.0.1:7890';
-    return IOClient(ioClient);
-  }
-
-  static Future<AppUpdateInfo?> _checkKata({
+  static Future<AppUpdateInfo?> _checkGitHub({
     required String currentVersion,
     required String assetExtension,
     required http.Client client,
     required Duration timeout,
   }) async {
     final response = await _boundedGet(
-      kataUpdateUrl,
+      githubLatestReleaseUrl,
       client: client,
       timeout: timeout,
       maxBytes: maxMetadataResponseBytes,
       headers: {
+        'Accept': 'application/vnd.github.v3+json',
         'User-Agent': AppConstants.appUserAgent,
       },
     );
 
     if (response.statusCode != 200) {
       throw HttpException(
-        'Kata update metadata returned HTTP ${response.statusCode}',
-        uri: kataUpdateUrl,
+        'GitHub update metadata returned HTTP ${response.statusCode}',
+        uri: githubLatestReleaseUrl,
       );
     }
 
     final data = jsonDecode(response.body);
     if (data is! Map<String, dynamic>) {
-      throw const FormatException('Kata update metadata is not an object');
+      throw const FormatException('GitHub update metadata is not an object');
     }
 
-    final latestVersion = (data['version']?.toString() ?? '').trim();
+    final latestVersion = (data['tag_name']?.toString() ?? '').replaceFirst(
+      RegExp(r'^v'),
+      '',
+    );
     if (!_isValidVersion(latestVersion)) {
-      throw const FormatException('Kata release version is invalid');
+      throw const FormatException('GitHub release version is invalid');
     }
     if (compareVersions(latestVersion, currentVersion) <= 0) return null;
 
-    final downloadUrl = data['download_url']?.toString() ?? '';
-    if (downloadUrl.isEmpty) throw UpdateNotReady(latestVersion);
-    final changelog = data['changelog']?.toString() ?? '';
-    final sha256 = data['sha256']?.toString();
-    final fallbackDownloadUrl = data['fallback_download_url']?.toString();
-    final sourceHost = Uri.tryParse(downloadUrl)?.host;
+    final releaseAssets = _releaseAssets(data['assets']);
+    final selectedAsset = _assetFor(releaseAssets, assetExtension);
+    if (selectedAsset == null) throw UpdateNotReady(latestVersion);
+    final downloadUrl = selectedAsset.downloadUrl;
+    if (!_isExpectedGitHubAssetUrl(
+      downloadUrl,
+      version: latestVersion,
+      assetName: selectedAsset.name,
+    )) {
+      throw UpdateNotReady(latestVersion);
+    }
+    final sha256 = await _sha256ForAsset(
+      releaseAssets,
+      selectedAsset,
+      latestVersion,
+      client,
+      timeout,
+    );
+    if (sha256 == null) throw UpdateNotReady(latestVersion);
+    final sourceHost = Uri.parse(downloadUrl).host;
 
     return AppUpdateInfo(
       version: latestVersion,
       downloadUrl: downloadUrl,
-      changelog: changelog,
+      changelog: _buildChangelog(
+        data['body']?.toString() ?? '',
+        sourceHost: sourceHost,
+        sha256: sha256,
+      ),
       sha256: sha256,
       sourceHost: sourceHost,
-      fallbackDownloadUrl: fallbackDownloadUrl,
     );
   }
 

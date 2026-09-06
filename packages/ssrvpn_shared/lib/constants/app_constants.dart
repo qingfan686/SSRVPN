@@ -100,7 +100,7 @@ class AppConstants {
 
   // ── 版本信息 ──
   static const String appName = '清凡VPN';
-  static const String appVersion = '5.2.1';
+  static const String appVersion = '5.2.0';
   static const String appUserAgent = '$appName/$appVersion';
   static const String appDescription = 'Cross-platform VPN client';
 
