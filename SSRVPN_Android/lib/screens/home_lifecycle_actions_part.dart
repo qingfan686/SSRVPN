@@ -285,8 +285,11 @@ extension _AndroidHomeLifecycleActions on HomeScreenState {
 
   Future<void> _checkForUpdateManually() async {
     if (!mounted || _disposed) return;
-    // 固定跳转UC网盘下载页
-    await UpdateService.openExternalUrl(
-        'https://drive.uc.cn/s/740697aec6cb4?public=1');
+    // 从远程配置获取下载地址，网络失败回退UC网盘
+    final config = await RemoteConfigService.fetch();
+    final url = config.manualDownload.downloadUrl.isNotEmpty
+        ? config.manualDownload.downloadUrl
+        : 'https://drive.uc.cn/s/740697aec6cb4?public=1';
+    await UpdateService.openExternalUrl(url);
   }
 }

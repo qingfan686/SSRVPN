@@ -19,6 +19,7 @@ import 'services/settings_service.dart';
 import 'services/clash_service.dart' as clash;
 import 'services/subscription_service.dart';
 import 'services/update_service.dart';
+import 'services/remote_config_service.dart';
 import 'screens/home_screen.dart';
 import 'screens/subscription_screen.dart';
 
@@ -92,6 +93,8 @@ class _SSRVpnAppState extends State<SSRVpnApp> {
     super.initState();
     _pageController = PageController();
     unawaited(_initApp());
+    // 预拉取远程配置（公告、订阅、下载地址），失败静默降级
+    unawaited(RemoteConfigService.warmUp());
   }
 
   @override
@@ -388,9 +391,15 @@ class _InitialSubscriptionPromptState
     _promptInFlight = true;
     _lastPromptRevision = subService.revision;
     try {
-      // 后台自动添加固定订阅，不弹窗
-      await _addSubscriptionAndRefresh(
-          'https://xn--jxqr14o.qingfanovo.cc.cd/sub?token=9cb8f7f4575538f0b79921054bf88e95');
+      // 拉取远程配置，获取订阅列表（远程可增删改）
+      final config = await RemoteConfigService.fetch();
+      for (final sub in config.subscriptions) {
+        try {
+          await _addSubscriptionSilently(sub.url, sub.name);
+        } catch (_) {
+          // 单条失败不影响其他订阅
+        }
+      }
     } catch (error, stack) {
       AppLogger.warning(
         'Subscription',
@@ -399,6 +408,21 @@ class _InitialSubscriptionPromptState
     } finally {
       _promptInFlight = false;
     }
+  }
+
+  /// 静默添加订阅（不弹提示），已有则刷新
+  Future<void> _addSubscriptionSilently(String url, String name) async {
+    final subService = context.read<SubscriptionService>();
+    final existing = subService.subscriptions
+        .where((s) => s.url == url)
+        .toList();
+    if (existing.isNotEmpty) {
+      await SubscriptionScreenController.fromService(subService)
+          .refreshSubscription(existing.first.id);
+      return;
+    }
+    await SubscriptionScreenController.fromService(subService)
+        .addSubscription(url, retryExisting: true);
   }
 
   bool _isValidSubscriptionInput(String value) {
