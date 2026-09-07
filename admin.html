@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>清凡VPN 云更新管理面板</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .container { max-width: 800px; margin: 0 auto; }
+  h1 {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #60a5fa, #34d399);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle { text-align: center; color: #94a3b8; margin-bottom: 24px; font-size: 14px; }
+  .card {
+    background: #1e293b;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    border: 1px solid #334155;
+  }
+  .card h2 {
+    font-size: 16px;
+    margin-bottom: 16px;
+    color: #60a5fa;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  label {
+    display: block;
+    font-size: 13px;
+    color: #94a3b8;
+    margin-bottom: 6px;
+    margin-top: 12px;
+  }
+  input[type="text"], textarea {
+    width: 100%;
+    padding: 10px 12px;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    color: #e2e8f0;
+    font-size: 14px;
+    font-family: inherit;
+  }
+  input[type="text"]:focus, textarea:focus {
+    outline: none;
+    border-color: #60a5fa;
+  }
+  textarea { resize: vertical; min-height: 80px; }
+  .sub-item {
+    background: #0f172a;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    border: 1px solid #334155;
+  }
+  .sub-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .sub-item-header span { font-size: 13px; color: #94a3b8; }
+  .btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+  }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-danger {
+    background: #ef4444;
+    color: white;
+    padding: 4px 10px;
+    font-size: 12px;
+  }
+  .btn-success {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+  }
+  .btn-secondary {
+    background: #334155;
+    color: #e2e8f0;
+  }
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+  }
+  .toggle-row label { margin: 0; }
+  .switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+  }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #475569;
+    border-radius: 24px;
+    transition: 0.3s;
+  }
+  .slider:before {
+    content: "";
+    position: absolute;
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.3s;
+  }
+  input:checked + .slider { background: #3b82f6; }
+  input:checked + .slider:before { transform: translateX(20px); }
+  .json-preview {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    color: #a5f3fc;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  .toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #10b981;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    z-index: 1000;
+    display: none;
+  }
+  .hint {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>清凡VPN 云更新管理面板</h1>
+  <p class="subtitle">填写下方表单，自动生成 config.json，复制或下载后上传到 GitHub</p>
+
+  <!-- 订阅管理 -->
+  <div class="card">
+    <h2>📡 订阅列表</h2>
+    <div id="subList"></div>
+    <button class="btn btn-secondary" onclick="addSub()" style="margin-top:8px;">+ 添加订阅</button>
+  </div>
+
+  <!-- 公告 -->
+  <div class="card">
+    <h2>📢 公告设置</h2>
+    <label>公告内容（支持换行）</label>
+    <textarea id="announcement" placeholder="输入公告内容..."></textarea>
+    <div class="toggle-row">
+      <label>启用公告</label>
+      <label class="switch">
+        <input type="checkbox" id="announcementEnable" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- 下载按钮 -->
+  <div class="card">
+    <h2>🔗 下载最新版设置</h2>
+    <div class="toggle-row">
+      <label>显示下载按钮</label>
+      <label class="switch">
+        <input type="checkbox" id="enableButton" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="toggle-row">
+      <label>标记有新版本（开启后关于弹窗必须点下载才能关闭）</label>
+      <label class="switch">
+        <input type="checkbox" id="hasNewVersion">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <label>下载跳转地址</label>
+    <input type="text" id="downloadUrl" placeholder="https://drive.uc.cn/s/xxx">
+  </div>
+
+  <!-- 生成JSON -->
+  <div class="card">
+    <h2>📄 生成的 config.json</h2>
+    <div class="json-preview" id="jsonPreview"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="copyJson()">📋 复制 JSON</button>
+      <button class="btn btn-success" onclick="downloadJson()">💾 下载 config.json</button>
+      <button class="btn btn-secondary" onclick="loadDefault()">🔄 恢复默认</button>
+    </div>
+    <p class="hint" style="margin-top:12px;">使用方法：复制或下载 config.json → 替换 GitHub 仓库里的 config.json → git push → 用户打开APP自动生效</p>
+  </div>
+</div>
+
+<div class="toast" id="toast">已复制到剪贴板！</div>
+
+<script>
+const defaultConfig = {
+  subscriptions: [
+    { name: "清凡VPN", url: "https://xn--jxqr14o.qingfanovo.cc.cd/sub?token=9cb8f7f4575538f0b79921054bf88e95" }
+  ],
+  announcement_text: "清凡VPN 致力于为用户提供稳定、快速的网络加速服务。\n本软件完全免费，请勿用于商业用途。\n使用过程中如有问题，请联系作者反馈。\nqq 1082507723",
+  announcement_enable: true,
+  manual_download: {
+    enable_button: true,
+    has_new_version: false,
+    download_url: "https://drive.uc.cn/s/740697aec6cb4?public=1"
+  }
+};
+
+let subs = [...defaultConfig.subscriptions];
+
+function renderSubs() {
+  const container = document.getElementById('subList');
+  container.innerHTML = '';
+  subs.forEach((sub, i) => {
+    const div = document.createElement('div');
+    div.className = 'sub-item';
+    div.innerHTML = `
+      <div class="sub-item-header">
+        <span>订阅 ${i + 1}</span>
+        <button class="btn btn-danger" onclick="removeSub(${i})">删除</button>
+      </div>
+      <label>名称</label>
+      <input type="text" value="${sub.name}" onchange="updateSub(${i}, 'name', this.value)">
+      <label>订阅链接</label>
+      <input type="text" value="${sub.url}" onchange="updateSub(${i}, 'url', this.value)">
+    `;
+    container.appendChild(div);
+  });
+}
+
+function addSub() {
+  subs.push({ name: '新订阅', url: '' });
+  renderSubs();
+  updateJson();
+}
+
+function removeSub(i) {
+  subs.splice(i, 1);
+  renderSubs();
+  updateJson();
+}
+
+function updateSub(i, field, value) {
+  subs[i][field] = value;
+  updateJson();
+}
+
+function buildConfig() {
+  return {
+    subscriptions: subs.filter(s => s.url.trim()),
+    announcement_text: document.getElementById('announcement').value,
+    announcement_enable: document.getElementById('announcementEnable').checked,
+    manual_download: {
+      enable_button: document.getElementById('enableButton').checked,
+      has_new_version: document.getElementById('hasNewVersion').checked,
+      download_url: document.getElementById('downloadUrl').value.trim()
+    }
+  };
+}
+
+function updateJson() {
+  const config = buildConfig();
+  document.getElementById('jsonPreview').textContent = JSON.stringify(config, null, 2);
+}
+
+function copyJson() {
+  const text = document.getElementById('jsonPreview').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('已复制到剪贴板！');
+  });
+}
+
+function downloadJson() {
+  const text = document.getElementById('jsonPreview').textContent;
+  const blob = new Blob([text], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'config.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('config.json 已下载！');
+}
+
+function loadDefault() {
+  subs = [...defaultConfig.subscriptions];
+  document.getElementById('announcement').value = defaultConfig.announcement_text;
+  document.getElementById('announcementEnable').checked = defaultConfig.announcement_enable;
+  document.getElementById('enableButton').checked = defaultConfig.manual_download.enable_button;
+  document.getElementById('hasNewVersion').checked = defaultConfig.manual_download.has_new_version;
+  document.getElementById('downloadUrl').value = defaultConfig.manual_download.download_url;
+  renderSubs();
+  updateJson();
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.style.display = 'block';
+  setTimeout(() => { toast.style.display = 'none'; }, 2000);
+}
+
+// 监听所有输入变化
+document.querySelectorAll('input, textarea').forEach(el => {
+  el.addEventListener('input', updateJson);
+  el.addEventListener('change', updateJson);
+});
+
+// 初始化
+loadDefault();
+</script>
+</body>
+</html>
