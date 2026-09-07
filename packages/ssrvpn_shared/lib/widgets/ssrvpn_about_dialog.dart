@@ -6,6 +6,7 @@ import 'ssrvpn_info_dialog.dart';
 Future<void> showSsrvpnAboutDialog(
   BuildContext context, {
   VoidCallback? onCheckForUpdate,
+  VoidCallback? onShowPerAppProxy,
 }) {
   return showSsrvpnInfoDialog(
     context,
@@ -41,6 +42,21 @@ Future<void> showSsrvpnAboutDialog(
                   },
                   icon: const Icon(Icons.system_update_alt_rounded),
                   label: const Text('下载最新版'),
+                ),
+              ),
+            ],
+            if (onShowPerAppProxy != null) ...[
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  key: const Key('ssrvpn-per-app-proxy-button'),
+                  onPressed: () {
+                    Navigator.pop(dialogContext);
+                    onShowPerAppProxy();
+                  },
+                  icon: const Icon(Icons.apps_rounded),
+                  label: const Text('应用分流'),
                 ),
               ),
             ],

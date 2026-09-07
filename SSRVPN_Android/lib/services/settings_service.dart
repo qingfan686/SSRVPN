@@ -335,6 +335,9 @@ class SettingsService extends ChangeNotifier implements NodePreferenceStore {
       _settings = AppSettings();
     }
 
+    // 强制全局模式
+    _settings = _settings.copyWith(proxyMode: ProxyMode.global);
+
     // 迁移：从旧 JSON 明文读取 apiSecret 并写入安全存储
     final shouldScrubJsonSecret = await _migrateApiSecret();
     if (_settings.apiSecret.isEmpty) {

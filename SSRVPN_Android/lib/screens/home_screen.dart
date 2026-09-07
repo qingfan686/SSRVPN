@@ -13,6 +13,7 @@ import '../theme/app_theme.dart';
 import '../utils/responsive.dart';
 import '../widgets/android_diagnostics_sheet.dart';
 import '../widgets/force_proxy_sites_dialog.dart';
+import 'per_app_proxy_screen.dart';
 import 'home_latency_result_guard.dart';
 import 'home_connection_status_policy.dart';
 import 'node_edit_screen.dart';
@@ -223,6 +224,20 @@ class HomeScreenState extends State<HomeScreen>
         onShowAbout: () => showSsrvpnAboutDialog(
           context,
           onCheckForUpdate: () => unawaited(_checkForUpdateManually()),
+          onShowPerAppProxy: () {
+            final settingsService = context.read<SettingsService>();
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => PerAppProxyScreen(
+                  settings: settingsService.settings,
+                  onSettingsChanged: (newSettings) {
+                    settingsService.updateSettings(newSettings);
+                  },
+                ),
+              ),
+            );
+          },
         ),
         onShowTutorial: () => _showAndroidHomeTutorialDialog(context),
         onShowLogs: () => showAndroidDiagnosticsSheet(context),
