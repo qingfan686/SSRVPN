@@ -37,7 +37,7 @@ class AppSettings {
     this.socksPort = 7891,
     this.apiPort = 9090,
     this.apiSecret = '',
-    this.proxyMode = ProxyMode.rule,
+    this.proxyMode = ProxyMode.global,
     bool? enableTun,
     @Deprecated('Use enableTun instead.') bool? tunMode,
     @Deprecated('Use enableTun with inverse meaning instead.')

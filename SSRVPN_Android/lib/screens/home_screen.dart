@@ -215,9 +215,9 @@ class HomeScreenState extends State<HomeScreen>
             displayNode == null ? null : countryCodeForProxyNode(displayNode),
         errorMessage: _errorMessage,
         connectionNotice: _connectionNotice,
-        publicIpv4: null,
-        isRefreshingPublicIp: false,
-        publicIpError: null,
+        publicIpv4: _publicIpInfo?.displayText,
+        isRefreshingPublicIp: _isRefreshingPublicIp,
+        publicIpError: _publicIpError,
         onToggleConnection: _handleConnectToggle,
         onOpenNodes: _openNodeSelection,
         onShowAbout: () => showSsrvpnAboutDialog(
@@ -226,7 +226,7 @@ class HomeScreenState extends State<HomeScreen>
         ),
         onShowTutorial: () => _showAndroidHomeTutorialDialog(context),
         onShowLogs: () => showAndroidDiagnosticsSheet(context),
-        onRefreshPublicIp: () {},
+        onRefreshPublicIp: () => unawaited(_refreshPublicIpInfo()),
       ),
     );
   }

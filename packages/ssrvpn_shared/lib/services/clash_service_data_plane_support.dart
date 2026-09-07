@@ -263,8 +263,16 @@ mixin _ClashDataPlaneSupport {
   }
 
   Future<PublicIpInfo> fetchCurrentPublicIpInfo() async {
-    // IPv4功能已禁用
-    throw const PublicIpInfoException('IPv4功能已禁用');
+    final client = IOClient(
+      HttpClient()
+        ..connectionTimeout = const Duration(seconds: 5)
+        ..findProxy = (_) => _localHttpProxyConfig(),
+    );
+    try {
+      return await PublicIpInfoService(client: client).fetch();
+    } finally {
+      client.close();
+    }
   }
 
   String? normalizeCountryCode(String? value) {
