@@ -7,6 +7,8 @@
   ],
   "announcement_text": "清凡VPN 致力于为用户提供稳定、快速的网络加速服务。\n本软件完全免费，请勿用于商业用途。\n使用过程中如有问题，请联系作者反馈。\nqq 1082507723",
   "announcement_enable": true,
+  "client_url_label": "赞助链接",
+  "client_url": "https://sharechain.qq.com/7702b9eeb93e719c51de1cd3fcdc4c71?qq_aio_chat_type=3",
   "manual_download": {
     "enable_button": true,
     "has_new_version": false,

@@ -10,6 +10,8 @@ Future<void> showSsrvpnAboutDialog(
   String announcementText = '暂无公告，请联网后查看最新公告。',
   bool showDownloadButton = true,
   bool hasNewVersion = false,
+  String clientUrlLabel = '客户端地址',
+  String clientUrl = 'https://github.com/qingfan686/SSRVPN',
 }) {
   return showSsrvpnInfoDialog(
     context,
@@ -31,6 +33,8 @@ Future<void> showSsrvpnAboutDialog(
           announcementText: announcementText,
           showDownloadButton: showDownloadButton,
           hasNewVersion: hasNewVersion,
+          clientUrlLabel: clientUrlLabel,
+          clientUrl: clientUrl,
           onCheckForUpdate: onCheckForUpdate,
           onShowPerAppProxy: onShowPerAppProxy,
         );
@@ -45,6 +49,8 @@ class _AboutDialogContent extends StatefulWidget {
   final String announcementText;
   final bool showDownloadButton;
   final bool hasNewVersion;
+  final String clientUrlLabel;
+  final String clientUrl;
   final VoidCallback? onCheckForUpdate;
   final VoidCallback? onShowPerAppProxy;
 
@@ -54,6 +60,8 @@ class _AboutDialogContent extends StatefulWidget {
     required this.announcementText,
     required this.showDownloadButton,
     required this.hasNewVersion,
+    required this.clientUrlLabel,
+    required this.clientUrl,
     required this.onCheckForUpdate,
     required this.onShowPerAppProxy,
   });
@@ -132,13 +140,13 @@ class _AboutDialogContentState extends State<_AboutDialogContent> {
           ),
         ],
         const SizedBox(height: 16),
-        const Text(
-          '客户端地址',
-          style: TextStyle(fontWeight: FontWeight.w700),
+        Text(
+          widget.clientUrlLabel,
+          style: const TextStyle(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 4),
         SelectableText(
-          'https://github.com/qingfan686/SSRVPN',
+          widget.clientUrl,
           style: TextStyle(color: widget.accentText),
         ),
         const SizedBox(height: 16),

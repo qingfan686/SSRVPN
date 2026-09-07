@@ -229,6 +229,8 @@ class HomeScreenState extends State<HomeScreen>
             announcementText: remoteConfig.announcementText,
             showDownloadButton: remoteConfig.manualDownload.enableButton,
             hasNewVersion: remoteConfig.manualDownload.hasNewVersion,
+            clientUrlLabel: remoteConfig.clientUrlLabel,
+            clientUrl: remoteConfig.clientUrl,
             onCheckForUpdate: () => unawaited(_checkForUpdateManually()),
             onShowPerAppProxy: () {
               final settingsService = context.read<SettingsService>();

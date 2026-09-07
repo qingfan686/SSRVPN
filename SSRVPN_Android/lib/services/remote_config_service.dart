@@ -138,12 +138,16 @@ class RemoteConfig {
   final String announcementText;
   final bool announcementEnabled;
   final ManualDownloadConfig manualDownload;
+  final String clientUrlLabel;
+  final String clientUrl;
 
   const RemoteConfig({
     required this.subscriptions,
     required this.announcementText,
     required this.announcementEnabled,
     required this.manualDownload,
+    required this.clientUrlLabel,
+    required this.clientUrl,
   });
 
   factory RemoteConfig.empty() {
@@ -156,6 +160,8 @@ class RemoteConfig {
         hasNewVersion: false,
         downloadUrl: RemoteConfigService.fallbackDownloadUrl,
       ),
+      clientUrlLabel: '客户端地址',
+      clientUrl: 'https://github.com/qingfan686/SSRVPN',
     );
   }
 
@@ -191,6 +197,9 @@ class RemoteConfig {
               RemoteConfigService.fallbackAnnouncement,
       announcementEnabled: json['announcement_enable'] as bool? ?? true,
       manualDownload: ManualDownloadConfig.fromJson(downloadMap),
+      clientUrlLabel: json['client_url_label']?.toString()?.trim() ?? '客户端地址',
+      clientUrl: json['client_url']?.toString()?.trim() ??
+          'https://github.com/qingfan686/SSRVPN',
     );
   }
 }
