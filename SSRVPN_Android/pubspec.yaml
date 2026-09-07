@@ -52,3 +52,8 @@ flutter:
     - shaders/liquid_lens.frag
   assets:
     - assets/
+  fonts:
+    - family: PingFangPro
+      fonts:
+        - asset: assets/fonts/PingFangProKeyboardBold.ttf
+          weight: 700

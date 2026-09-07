@@ -1,4 +1,4 @@
-package com.ssrvpn.android
+package com.qingfanvpn.android
 
 import java.io.File
 import java.nio.file.Files

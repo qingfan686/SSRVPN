@@ -1,4 +1,4 @@
-package com.ssrvpn.android
+package com.qingfanvpn.android
 
 import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream

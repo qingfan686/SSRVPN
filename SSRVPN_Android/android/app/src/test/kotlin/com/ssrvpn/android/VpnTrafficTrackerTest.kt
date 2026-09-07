@@ -1,4 +1,4 @@
-package com.ssrvpn.android
+package com.qingfanvpn.android
 
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors

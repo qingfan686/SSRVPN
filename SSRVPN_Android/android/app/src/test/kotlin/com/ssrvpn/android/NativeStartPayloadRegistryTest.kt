@@ -1,4 +1,4 @@
-package com.ssrvpn.android
+package com.qingfanvpn.android
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals

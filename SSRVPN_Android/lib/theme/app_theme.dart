@@ -62,6 +62,7 @@ class AppTheme {
   static ThemeData get darkTheme => ThemeData(
         brightness: Brightness.dark,
         useMaterial3: true,
+        fontFamily: 'PingFangPro',
         primaryColor: primaryColor,
         scaffoldBackgroundColor: darkBg,
         colorScheme: const ColorScheme.dark(
@@ -211,6 +212,7 @@ class AppTheme {
   static ThemeData get lightTheme => ThemeData(
         brightness: Brightness.light,
         useMaterial3: true,
+        fontFamily: 'PingFangPro',
         primaryColor: primaryColor,
         scaffoldBackgroundColor: lightBg,
         colorScheme: const ColorScheme.light(

@@ -20,7 +20,7 @@ val isReleaseBuildRequested = gradle.startParameter.taskNames.any {
 }
 
 android {
-    namespace = "com.ssrvpn.android"
+    namespace = "com.qingfanvpn.android"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "28.2.13676358"
 
@@ -30,7 +30,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.ssrvpn.android"
+        applicationId = "com.qingfanvpn.android"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

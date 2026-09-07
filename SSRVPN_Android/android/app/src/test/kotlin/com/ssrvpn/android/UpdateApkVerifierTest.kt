@@ -1,4 +1,4 @@
-package com.ssrvpn.android
+package com.qingfanvpn.android
 
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -113,7 +113,7 @@ class UpdateApkVerifierTest {
     }
 
     private fun identity(
-        packageName: String = "com.ssrvpn.android",
+        packageName: String = "com.qingfanvpn.android",
         current: Set<List<Byte>>,
         history: Set<List<Byte>> = current,
         multipleSigners: Boolean = false,
