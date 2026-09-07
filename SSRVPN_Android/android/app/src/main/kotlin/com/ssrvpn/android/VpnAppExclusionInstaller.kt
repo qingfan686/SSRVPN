@@ -11,13 +11,17 @@ internal object VpnAppExclusionInstaller {
 
     fun install(
         builder: VpnService.Builder,
-        bypassDomesticApps: Boolean
-    ): List<String> = install(bypassDomesticApps) { packageName ->
+        bypassDomesticApps: Boolean,
+        perAppMode: String = "none",
+        perAppPackages: List<String> = emptyList()
+    ): List<String> = install(bypassDomesticApps, perAppMode, perAppPackages) { packageName ->
         addIfInstalled(builder, packageName)
     }
 
     internal fun install(
         bypassDomesticApps: Boolean,
+        perAppMode: String,
+        perAppPackages: List<String>,
         addDisallowedApplication: (String) -> Boolean
     ): List<String> {
         val bypassedDomesticApps = if (bypassDomesticApps) {
@@ -28,7 +32,29 @@ internal object VpnAppExclusionInstaller {
         adbPackages.forEach { packageName ->
             addDisallowedApplication(packageName)
         }
+        // 黑名单模式：选中的应用不走代理（排除）
+        if (perAppMode == "blacklist") {
+            perAppPackages.forEach { packageName ->
+                addDisallowedApplication(packageName)
+            }
+        }
         return bypassedDomesticApps
+    }
+
+    /**
+     * 白名单模式：只允许选中的应用走代理。
+     * 需要调用 builder.addAllowedApplication()，与黑名单逻辑不同。
+     */
+    fun installWhitelist(
+        builder: VpnService.Builder,
+        allowedPackages: List<String>
+    ) {
+        allowedPackages.forEach { packageName ->
+            try {
+                builder.addAllowedApplication(packageName)
+            } catch (_: PackageManager.NameNotFoundException) {
+            }
+        }
     }
 
     private fun addIfInstalled(

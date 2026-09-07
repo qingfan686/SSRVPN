@@ -32,6 +32,10 @@ class AppSettings {
   List<String> forceProxySites;
   List<String> forceDirectSites;
 
+  // ── 应用白名单/黑名单 ──
+  PerAppProxyMode perAppProxyMode;
+  List<String> perAppProxyPackages;
+
   AppSettings({
     this.proxyPort = 7890,
     this.socksPort = 7891,
@@ -50,13 +54,20 @@ class AppSettings {
     this.latencyTestTimeout = 5000,
     Iterable<Object?>? forceProxySites,
     Iterable<Object?>? forceDirectSites,
+    this.perAppProxyMode = PerAppProxyMode.none,
+    Iterable<Object?>? perAppProxyPackages,
   })  : enableTun = enableTun ??
             tunMode ??
             (enableSystemProxy == null ? false : !enableSystemProxy),
         tunStack = _parseTunStack(tunStack),
         lastSelectedNodeName = lastSelectedNodeName ?? lastSelectedNode,
         forceProxySites = normalizeForceProxySites(forceProxySites),
-        forceDirectSites = normalizeForceDirectSites(forceDirectSites);
+        forceDirectSites = normalizeForceDirectSites(forceDirectSites),
+        perAppProxyPackages = perAppProxyPackages
+                ?.map((e) => e?.toString() ?? '')
+                .where((e) => e.isNotEmpty)
+                .toList() ??
+            const [];
 
   // ── 便捷 getter/setter ──
 
@@ -98,6 +109,8 @@ class AppSettings {
     int? latencyTestTimeout,
     Iterable<Object?>? forceProxySites,
     Iterable<Object?>? forceDirectSites,
+    PerAppProxyMode? perAppProxyMode,
+    Iterable<Object?>? perAppProxyPackages,
   }) {
     return AppSettings(
       proxyPort: proxyPort ?? this.proxyPort,
@@ -119,6 +132,8 @@ class AppSettings {
       latencyTestTimeout: latencyTestTimeout ?? this.latencyTestTimeout,
       forceProxySites: forceProxySites ?? this.forceProxySites,
       forceDirectSites: forceDirectSites ?? this.forceDirectSites,
+      perAppProxyMode: perAppProxyMode ?? this.perAppProxyMode,
+      perAppProxyPackages: perAppProxyPackages ?? this.perAppProxyPackages,
     );
   }
 
@@ -139,6 +154,8 @@ class AppSettings {
       'latencyTestTimeout': latencyTestTimeout,
       'forceProxySites': forceProxySites,
       'forceDirectSites': forceDirectSites,
+      'perAppProxyMode': perAppProxyMode.name,
+      'perAppProxyPackages': perAppProxyPackages,
     };
   }
 
@@ -167,6 +184,12 @@ class AppSettings {
               (e) => e?.toString() ?? '',
             )
           : null,
+      perAppProxyMode: _parsePerAppProxyMode(json['perAppProxyMode']?.toString()),
+      perAppProxyPackages: json['perAppProxyPackages'] is Iterable
+          ? (json['perAppProxyPackages'] as Iterable).map(
+              (e) => e?.toString() ?? '',
+            )
+          : null,
     );
   }
 
@@ -188,7 +211,9 @@ class AppSettings {
         other.lastSelectedNodeRenameId == lastSelectedNodeRenameId &&
         other.latencyTestTimeout == latencyTestTimeout &&
         _listEquals(other.forceProxySites, forceProxySites) &&
-        _listEquals(other.forceDirectSites, forceDirectSites);
+        _listEquals(other.forceDirectSites, forceDirectSites) &&
+        other.perAppProxyMode == perAppProxyMode &&
+        _listEquals(other.perAppProxyPackages, perAppProxyPackages);
   }
 
   @override
@@ -207,6 +232,8 @@ class AppSettings {
       latencyTestTimeout,
       Object.hashAll(forceProxySites),
       Object.hashAll(forceDirectSites),
+      perAppProxyMode,
+      Object.hashAll(perAppProxyPackages),
     );
   }
 
@@ -284,6 +311,17 @@ class AppSettings {
         return ProxyMode.rule;
     }
   }
+
+  static PerAppProxyMode _parsePerAppProxyMode(String? mode) {
+    switch (mode) {
+      case 'whitelist':
+        return PerAppProxyMode.whitelist;
+      case 'blacklist':
+        return PerAppProxyMode.blacklist;
+      default:
+        return PerAppProxyMode.none;
+    }
+  }
 }
 
 String _parseLatencyTestUrl(Object? value) {
@@ -304,4 +342,15 @@ enum ProxyMode {
   final String chineseName;
   final String englishName;
   const ProxyMode(this.chineseName, this.englishName);
+}
+
+/// 应用代理模式枚举
+enum PerAppProxyMode {
+  none('全部应用', 'None'),
+  whitelist('仅选中应用走代理', 'Whitelist'),
+  blacklist('选中应用不走代理', 'Blacklist');
+
+  final String chineseName;
+  final String englishName;
+  const PerAppProxyMode(this.chineseName, this.englishName);
 }
