@@ -41,7 +41,7 @@ class RemoteConfigService {
   static DateTime _lastFetch = DateTime.fromMillisecondsSinceEpoch(0);
   static bool _fetchInFlight = false;
 
-  static const Duration _cacheTtl = Duration(minutes: 10);
+  static const Duration _cacheTtl = Duration(minutes: 1);
 
   static RemoteConfig get cached => _cached ?? RemoteConfig.empty();
 
