@@ -285,7 +285,11 @@ extension _AndroidHomeLifecycleActions on HomeScreenState {
 
   Future<void> _checkForUpdateManually() async {
     if (!mounted || _disposed) return;
-    // 直接跳转下载页面
-    await UpdateService.openExternalUrl('https://share.weiyun.com/CLvUUNac');
+    // 从远程配置获取下载链接，网络失败回退微云
+    final config = await RemoteConfigService.fetch();
+    final url = config.downloadUrl.isNotEmpty
+        ? config.downloadUrl
+        : 'https://share.weiyun.com/CLvUUNac';
+    await UpdateService.openExternalUrl(url);
   }
 }

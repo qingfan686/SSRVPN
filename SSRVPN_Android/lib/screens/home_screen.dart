@@ -8,6 +8,7 @@ import '../services/clash_service.dart';
 import '../services/subscription_service.dart';
 import '../services/settings_service.dart';
 import '../services/update_service.dart';
+import '../services/remote_config_service.dart';
 import '../services/connection_orchestrator.dart';
 import '../theme/app_theme.dart';
 import '../utils/responsive.dart';
@@ -221,24 +222,34 @@ class HomeScreenState extends State<HomeScreen>
         publicIpError: _publicIpError,
         onToggleConnection: _handleConnectToggle,
         onOpenNodes: _openNodeSelection,
-        onShowAbout: () => showSsrvpnAboutDialog(
-          context,
-          onCheckForUpdate: () => unawaited(_checkForUpdateManually()),
-          onShowPerAppProxy: () {
-            final settingsService = context.read<SettingsService>();
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => PerAppProxyScreen(
-                  settings: settingsService.settings,
-                  onSettingsChanged: (newSettings) {
-                    settingsService.updateSettings(newSettings);
-                  },
+        onShowAbout: () {
+          final remoteConfig = RemoteConfigService.cached;
+          final hasUpdate = remoteConfig.updateEnabled &&
+              VersionComparator.isLower(
+                AppConstants.appVersion,
+                remoteConfig.latestVersion,
+              );
+          showSsrvpnAboutDialog(
+            context,
+            announcementText: remoteConfig.announcementText,
+            hasUpdate: hasUpdate,
+            onCheckForUpdate: () => unawaited(_checkForUpdateManually()),
+            onShowPerAppProxy: () {
+              final settingsService = context.read<SettingsService>();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => PerAppProxyScreen(
+                    settings: settingsService.settings,
+                    onSettingsChanged: (newSettings) {
+                      settingsService.updateSettings(newSettings);
+                    },
+                  ),
                 ),
-              ),
-            );
-          },
-        ),
+              );
+            },
+          );
+        },
         onShowTutorial: () => _showAndroidHomeTutorialDialog(context),
         onShowLogs: () => showAndroidDiagnosticsSheet(context),
         onRefreshPublicIp: () => unawaited(_refreshPublicIpInfo()),

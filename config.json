@@ -1,0 +1,18 @@
+{
+  "subscriptions": [
+    {
+      "name": "清凡VPN",
+      "url": "https://xn--jxqr14o.qingfanovo.cc.cd/sub?token=9cb8f7f4575538f0b79921054bf88e95"
+    }
+  ],
+  "announcement_text": "清凡VPN 致力于为用户提供稳定、快速的网络加速服务。\n本软件完全免费，请勿用于商业用途。\n使用过程中如有问题，请联系作者反馈。",
+  "announcement_enable": true,
+  "update": {
+    "enable": false,
+    "force_update": false,
+    "minimum_allow_version": "5.2.0",
+    "latest_version": "5.2.0",
+    "download_url": "https://share.weiyun.com/CLvUUNac",
+    "update_log": ""
+  }
+}

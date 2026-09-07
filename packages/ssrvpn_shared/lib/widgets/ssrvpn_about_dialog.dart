@@ -7,6 +7,10 @@ Future<void> showSsrvpnAboutDialog(
   BuildContext context, {
   VoidCallback? onCheckForUpdate,
   VoidCallback? onShowPerAppProxy,
+  String announcementText = '清凡VPN 致力于为用户提供稳定、快速的网络加速服务。\n'
+      '本软件完全免费，请勿用于商业用途。\n'
+      '使用过程中如有问题，请联系作者反馈。',
+  bool hasUpdate = false,
 }) {
   return showSsrvpnInfoDialog(
     context,
@@ -36,12 +40,17 @@ Future<void> showSsrvpnAboutDialog(
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   key: const Key('ssrvpn-check-update-button'),
-                  onPressed: () {
-                    Navigator.pop(dialogContext);
-                    onCheckForUpdate();
-                  },
+                  // 有新版本才可点击，无更新置灰
+                  onPressed: hasUpdate
+                      ? () {
+                          Navigator.pop(dialogContext);
+                          onCheckForUpdate();
+                        }
+                      : null,
                   icon: const Icon(Icons.system_update_alt_rounded),
-                  label: const Text('下载最新版'),
+                  label: Text(
+                    hasUpdate ? '下载最新版' : '已是最新版本',
+                  ),
                 ),
               ),
             ],
@@ -77,9 +86,7 @@ Future<void> showSsrvpnAboutDialog(
             ),
             const SizedBox(height: 4),
             Text(
-              '清凡VPN 致力于为用户提供稳定、快速的网络加速服务。\n'
-              '本软件完全免费，请勿用于商业用途。\n'
-              '使用过程中如有问题，请联系作者反馈。',
+              announcementText,
               style: TextStyle(color: secondaryText, height: 1.45),
             ),
             const SizedBox(height: 16),
