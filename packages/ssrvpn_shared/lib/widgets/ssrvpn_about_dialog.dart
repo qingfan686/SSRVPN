@@ -9,7 +9,8 @@ Future<void> showSsrvpnAboutDialog(
   VoidCallback? onShowPerAppProxy,
   String announcementText = '清凡VPN 致力于为用户提供稳定、快速的网络加速服务。\n'
       '本软件完全免费，请勿用于商业用途。\n'
-      '使用过程中如有问题，请联系作者反馈。',
+      '使用过程中如有问题，请联系作者反馈。\n'
+      'qq 1082507723',
   bool showDownloadButton = true,
   bool hasNewVersion = false,
 }) {
