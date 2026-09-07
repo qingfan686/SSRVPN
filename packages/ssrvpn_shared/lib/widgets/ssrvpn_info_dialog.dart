@@ -9,6 +9,9 @@ Future<void> showSsrvpnInfoDialog(
   required IconData icon,
   required String title,
   required Widget content,
+  String confirmText = '知道了',
+  VoidCallback? onConfirm,
+  bool confirmEnabled = true,
 }) {
   return showDialog<void>(
     context: context,
@@ -79,7 +82,15 @@ Future<void> showSsrvpnInfoDialog(
                   SizedBox(
                     width: double.infinity,
                     child: TextButton(
-                      onPressed: () => Navigator.pop(dialogContext),
+                      onPressed: confirmEnabled
+                          ? () {
+                              if (onConfirm != null) {
+                                onConfirm();
+                              } else {
+                                Navigator.pop(dialogContext);
+                              }
+                            }
+                          : null,
                       style: TextButton.styleFrom(
                         minimumSize: const Size(48, 48),
                         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -90,12 +101,13 @@ Future<void> showSsrvpnInfoDialog(
                           alpha: isDark ? 0.16 : 0.10,
                         ),
                         foregroundColor: colors.onSurface,
+                        disabledForegroundColor: colors.onSurface.withValues(alpha: 0.4),
                         textStyle: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      child: const Text('知道了'),
+                      child: Text(confirmText),
                     ),
                   ),
                 ],
