@@ -157,6 +157,7 @@ class MainActivity : FlutterActivity() {
             "updateVpnNotification" -> handleUpdateVpnNotification(call, result)
             "openUrl" -> handleOpenUrl(call, result)
             "installUpdate" -> handleInstallUpdate(call, result)
+            "getInstalledApps" -> handleGetInstalledApps(result)
             else -> result.notImplemented()
         }
     }
@@ -524,6 +525,28 @@ class MainActivity : FlutterActivity() {
                 "无法打开安装界面，请重新下载安装包后重试",
                 null
             )
+        }
+    }
+
+    private fun handleGetInstalledApps(result: MethodChannel.Result) {
+        try {
+            val pm = packageManager
+            val apps = pm.getInstalledApplications(PackageManager.GET_META_DATA)
+                .filter { appInfo ->
+                    // 只显示有启动图标的用户应用
+                    pm.getLaunchIntentForPackage(appInfo.packageName) != null &&
+                            appInfo.flags and android.content.pm.ApplicationInfo.FLAG_SYSTEM == 0
+                }
+                .map { appInfo ->
+                    mapOf(
+                        "packageName" to appInfo.packageName,
+                        "appName" to pm.getApplicationLabel(appInfo).toString()
+                    )
+                }
+                .sortedBy { it["appName"] as String }
+            result.success(apps)
+        } catch (error: Exception) {
+            result.error("GET_APPS_FAILED", "获取应用列表失败: ${error.message}", null)
         }
     }
 
