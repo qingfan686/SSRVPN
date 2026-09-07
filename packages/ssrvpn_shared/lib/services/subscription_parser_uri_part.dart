@@ -443,7 +443,7 @@ class _SubscriptionUriParser {
       'type': 'socks5',
       'server': uri.host,
       'port': uri.port,
-      'udp': true,
+      'udp': false,
     };
     if (uri.scheme.toLowerCase() == 'socks5-tls') proxy['tls'] = true;
     _putUserInfo(proxy, uri.userInfo);
