@@ -34,7 +34,7 @@ class RemoteConfigService {
       '使用过程中如有问题，请联系作者反馈。';
 
   static const String fallbackDownloadUrl =
-      'https://share.weiyun.com/CLvUUNac';
+      'https://drive.uc.cn/s/740697aec6cb4?public=1';
 
   static RemoteConfig? _cached;
   static DateTime _lastFetch = DateTime.fromMillisecondsSinceEpoch(0);

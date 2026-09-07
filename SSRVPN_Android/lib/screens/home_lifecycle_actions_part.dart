@@ -285,11 +285,11 @@ extension _AndroidHomeLifecycleActions on HomeScreenState {
 
   Future<void> _checkForUpdateManually() async {
     if (!mounted || _disposed) return;
-    // 从远程配置获取下载链接，网络失败回退微云
+    // 从远程配置获取下载链接，网络失败回退UC网盘
     final config = await RemoteConfigService.fetch();
     final url = config.downloadUrl.isNotEmpty
         ? config.downloadUrl
-        : 'https://share.weiyun.com/CLvUUNac';
+        : 'https://drive.uc.cn/s/740697aec6cb4?public=1';
     await UpdateService.openExternalUrl(url);
   }
 }
