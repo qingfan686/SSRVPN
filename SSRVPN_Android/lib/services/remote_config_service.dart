@@ -10,11 +10,11 @@ import 'package:ssrvpn_shared/ssrvpn_shared.dart';
 /// 从云端 JSON 拉取：
 /// - subscriptions: 多条订阅链接（可远程增删改）
 /// - announcement_text: 关于弹窗公告内容（可远程修改）
-/// - update: 云更新信息（最新版本号、下载地址、强制更新开关、更新日志）
+/// - manual_download: 手动下载按钮配置（显示/隐藏、是否有新版本、下载地址）
 ///
 /// 网络失败时全部回退到本地内置配置，保证 APP 始终可用。
 class RemoteConfigService {
-  /// 远程配置地址（托管在 GitHub Pages / Cloudflare Pages 等静态托管）
+  /// 远程配置地址
   static const String remoteConfigUrl =
       'https://raw.githubusercontent.com/qingfan686/SSRVPN/main/config.json';
 
@@ -105,29 +105,47 @@ class RemoteSubscription {
   Map<String, dynamic> toJson() => {'name': name, 'url': url};
 }
 
+/// 手动下载按钮配置
+@immutable
+class ManualDownloadConfig {
+  /// 是否显示下载按钮
+  final bool enableButton;
+
+  /// 是否标记有新版本（开启后关于弹窗拦截，必须点下载才能关闭）
+  final bool hasNewVersion;
+
+  /// 下载跳转地址
+  final String downloadUrl;
+
+  const ManualDownloadConfig({
+    required this.enableButton,
+    required this.hasNewVersion,
+    required this.downloadUrl,
+  });
+
+  factory ManualDownloadConfig.fromJson(Map<String, dynamic> json) {
+    return ManualDownloadConfig(
+      enableButton: json['enable_button'] as bool? ?? true,
+      hasNewVersion: json['has_new_version'] as bool? ?? false,
+      downloadUrl: json['download_url']?.toString()?.trim() ??
+          RemoteConfigService.fallbackDownloadUrl,
+    );
+  }
+}
+
 /// 远程配置数据模型
 @immutable
 class RemoteConfig {
   final List<RemoteSubscription> subscriptions;
   final String announcementText;
   final bool announcementEnabled;
-  final bool updateEnabled;
-  final bool forceUpdate;
-  final String minimumAllowVersion;
-  final String latestVersion;
-  final String downloadUrl;
-  final String updateLog;
+  final ManualDownloadConfig manualDownload;
 
   const RemoteConfig({
     required this.subscriptions,
     required this.announcementText,
     required this.announcementEnabled,
-    required this.updateEnabled,
-    required this.forceUpdate,
-    required this.minimumAllowVersion,
-    required this.latestVersion,
-    required this.downloadUrl,
-    required this.updateLog,
+    required this.manualDownload,
   });
 
   factory RemoteConfig.empty() {
@@ -135,12 +153,11 @@ class RemoteConfig {
       subscriptions: RemoteConfigService.fallbackSubscriptions,
       announcementText: RemoteConfigService.fallbackAnnouncement,
       announcementEnabled: true,
-      updateEnabled: false,
-      forceUpdate: false,
-      minimumAllowVersion: AppConstants.appVersion,
-      latestVersion: AppConstants.appVersion,
-      downloadUrl: RemoteConfigService.fallbackDownloadUrl,
-      updateLog: '',
+      manualDownload: const ManualDownloadConfig(
+        enableButton: true,
+        hasNewVersion: false,
+        downloadUrl: RemoteConfigService.fallbackDownloadUrl,
+      ),
     );
   }
 
@@ -155,7 +172,6 @@ class RemoteConfig {
           .where((s) => s.url.isNotEmpty)
           .toList();
     } else {
-      // 兼容旧版单条订阅字段
       final singleUrl = json['subscription_url']?.toString()?.trim();
       subscriptions = singleUrl != null && singleUrl.isNotEmpty
           ? [RemoteSubscription(name: '清凡VPN', url: singleUrl)]
@@ -165,9 +181,9 @@ class RemoteConfig {
       subscriptions = RemoteConfigService.fallbackSubscriptions;
     }
 
-    final updateRaw = json['update'];
-    final updateMap = updateRaw is Map
-        ? Map<String, dynamic>.from(updateRaw as Map)
+    final downloadRaw = json['manual_download'];
+    final downloadMap = downloadRaw is Map
+        ? Map<String, dynamic>.from(downloadRaw as Map)
         : <String, dynamic>{};
 
     return RemoteConfig(
@@ -176,47 +192,7 @@ class RemoteConfig {
           json['announcement_text']?.toString()?.trim() ??
               RemoteConfigService.fallbackAnnouncement,
       announcementEnabled: json['announcement_enable'] as bool? ?? true,
-      updateEnabled: updateMap['enable'] as bool? ?? false,
-      forceUpdate: updateMap['force_update'] as bool? ?? false,
-      minimumAllowVersion:
-          updateMap['minimum_allow_version']?.toString()?.trim() ??
-              AppConstants.appVersion,
-      latestVersion:
-          updateMap['latest_version']?.toString()?.trim() ??
-              AppConstants.appVersion,
-      downloadUrl:
-          updateMap['download_url']?.toString()?.trim() ??
-              RemoteConfigService.fallbackDownloadUrl,
-      updateLog: updateMap['update_log']?.toString()?.trim() ?? '',
+      manualDownload: ManualDownloadConfig.fromJson(downloadMap),
     );
-  }
-}
-
-/// 版本号比较工具
-class VersionComparator {
-  /// 返回 true 当 [a] < [b]（语义化版本比较）
-  static bool isLower(String a, String b) {
-    final aParts = _split(a);
-    final bParts = _split(b);
-    final len = aParts.length > bParts.length
-        ? aParts.length
-        : bParts.length;
-    for (var i = 0; i < len; i++) {
-      final av = i < aParts.length ? aParts[i] : 0;
-      final bv = i < bParts.length ? bParts[i] : 0;
-      if (av != bv) return av < bv;
-    }
-    return false;
-  }
-
-  static List<int> _split(String version) {
-    final cleaned = version
-        .trim()
-        .replaceAll(RegExp(r'[^0-9.]'), '')
-        .split('.')
-        .where((s) => s.isNotEmpty)
-        .map((s) => int.tryParse(s) ?? 0)
-        .toList();
-    return cleaned.isEmpty ? [0] : cleaned;
   }
 }

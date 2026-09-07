@@ -10,7 +10,8 @@ Future<void> showSsrvpnAboutDialog(
   String announcementText = '清凡VPN 致力于为用户提供稳定、快速的网络加速服务。\n'
       '本软件完全免费，请勿用于商业用途。\n'
       '使用过程中如有问题，请联系作者反馈。',
-  bool hasUpdate = false,
+  bool showDownloadButton = true,
+  bool hasNewVersion = false,
 }) {
   return showSsrvpnInfoDialog(
     context,
@@ -26,77 +27,153 @@ Future<void> showSsrvpnAboutDialog(
         final accentText = theme.brightness == Brightness.dark
             ? Color.lerp(colors.primary, Colors.white, 0.40)!
             : Color.lerp(colors.primary, Colors.black, 0.16)!;
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '版本 ${AppConstants.appVersion}',
-              style: TextStyle(color: accentText),
-            ),
-            if (onCheckForUpdate != null) ...[
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  key: const Key('ssrvpn-check-update-button'),
-                  // 有新版本才可点击，无更新置灰
-                  onPressed: hasUpdate
-                      ? () {
-                          Navigator.pop(dialogContext);
-                          onCheckForUpdate();
-                        }
-                      : null,
-                  icon: const Icon(Icons.system_update_alt_rounded),
-                  label: Text(
-                    hasUpdate ? '下载最新版' : '已是最新版本',
-                  ),
-                ),
-              ),
-            ],
-            if (onShowPerAppProxy != null) ...[
-              const SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  key: const Key('ssrvpn-per-app-proxy-button'),
-                  onPressed: () {
-                    Navigator.pop(dialogContext);
-                    onShowPerAppProxy();
-                  },
-                  icon: const Icon(Icons.apps_rounded),
-                  label: const Text('应用分流'),
-                ),
-              ),
-            ],
-            const SizedBox(height: 16),
-            const Text(
-              '客户端地址',
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 4),
-            SelectableText(
-              'https://github.com/qingfan686/SSRVPN',
-              style: TextStyle(color: accentText),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              '公告',
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              announcementText,
-              style: TextStyle(color: secondaryText, height: 1.45),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              '作者：清凡',
-              style: TextStyle(color: secondaryText),
-            ),
-          ],
+        return _AboutDialogContent(
+          secondaryText: secondaryText,
+          accentText: accentText,
+          announcementText: announcementText,
+          showDownloadButton: showDownloadButton,
+          hasNewVersion: hasNewVersion,
+          onCheckForUpdate: onCheckForUpdate,
+          onShowPerAppProxy: onShowPerAppProxy,
         );
       },
     ),
   );
+}
+
+class _AboutDialogContent extends StatefulWidget {
+  final Color secondaryText;
+  final Color accentText;
+  final String announcementText;
+  final bool showDownloadButton;
+  final bool hasNewVersion;
+  final VoidCallback? onCheckForUpdate;
+  final VoidCallback? onShowPerAppProxy;
+
+  const _AboutDialogContent({
+    required this.secondaryText,
+    required this.accentText,
+    required this.announcementText,
+    required this.showDownloadButton,
+    required this.hasNewVersion,
+    required this.onCheckForUpdate,
+    required this.onShowPerAppProxy,
+  });
+
+  @override
+  State<_AboutDialogContent> createState() => _AboutDialogContentState();
+}
+
+class _AboutDialogContentState extends State<_AboutDialogContent> {
+  bool _downloadClicked = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final canClose = !widget.hasNewVersion || _downloadClicked;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '版本 ${AppConstants.appVersion}',
+          style: TextStyle(color: widget.accentText),
+        ),
+        if (widget.hasNewVersion && !_downloadClicked) ...[
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.orange.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.orange.withValues(alpha: 0.4)),
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 18),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    '检测到新版本，请点击下方【下载最新版】前往更新',
+                    style: TextStyle(fontSize: 13, color: Colors.orange),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+        if (widget.showDownloadButton && widget.onCheckForUpdate != null) ...[
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              key: const Key('ssrvpn-check-update-button'),
+              onPressed: () {
+                setState(() => _downloadClicked = true);
+                widget.onCheckForUpdate!();
+              },
+              icon: const Icon(Icons.system_update_alt_rounded),
+              label: Text(
+                widget.hasNewVersion ? '下载最新版（必须点击）' : '下载最新版',
+              ),
+            ),
+          ),
+        ],
+        if (widget.onShowPerAppProxy != null) ...[
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              key: const Key('ssrvpn-per-app-proxy-button'),
+              onPressed: () {
+                Navigator.pop(context);
+                widget.onShowPerAppProxy!();
+              },
+              icon: const Icon(Icons.apps_rounded),
+              label: const Text('应用分流'),
+            ),
+          ),
+        ],
+        const SizedBox(height: 16),
+        const Text(
+          '客户端地址',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(height: 4),
+        SelectableText(
+          'https://github.com/qingfan686/SSRVPN',
+          style: TextStyle(color: widget.accentText),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          '公告',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          widget.announcementText,
+          style: TextStyle(color: widget.secondaryText, height: 1.45),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          '作者：清凡',
+          style: TextStyle(color: widget.secondaryText),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          child: TextButton(
+            onPressed: canClose
+                ? () => Navigator.pop(context)
+                : null,
+            child: Text(
+              canClose ? '知道了' : '请先点击下载最新版',
+              style: TextStyle(
+                color: canClose ? null : Colors.grey,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }

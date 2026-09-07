@@ -20,7 +20,6 @@ import 'services/clash_service.dart' as clash;
 import 'services/subscription_service.dart';
 import 'services/update_service.dart';
 import 'services/remote_config_service.dart';
-import 'widgets/force_update_dialog.dart';
 import 'screens/home_screen.dart';
 import 'screens/subscription_screen.dart';
 
@@ -139,8 +138,6 @@ class _SSRVpnAppState extends State<SSRVpnApp> {
               flags: widget.startupFlags,
             ).start(),
           );
-          // 检查远程配置：强制更新
-          unawaited(_checkForceUpdate());
         });
         return;
       } catch (e) {
@@ -193,31 +190,6 @@ class _SSRVpnAppState extends State<SSRVpnApp> {
       _appInitialized = false;
     });
     unawaited(_initApp());
-  }
-
-  /// 检查远程强制更新
-  Future<void> _checkForceUpdate() async {
-    try {
-      final config = await RemoteConfigService.fetch();
-      if (!config.updateEnabled || !config.forceUpdate) return;
-      if (!VersionComparator.isLower(
-        AppConstants.appVersion,
-        config.minimumAllowVersion,
-      )) {
-        return;
-      }
-      if (!mounted) return;
-      final dialogContext = _navigatorKey.currentContext;
-      if (dialogContext == null) return;
-      await showForceUpdateDialog(
-        dialogContext,
-        latestVersion: config.latestVersion,
-        downloadUrl: config.downloadUrl,
-        updateLog: config.updateLog,
-      );
-    } catch (_) {
-      // 网络失败不强制更新，避免用户无法使用
-    }
   }
 
   Future<void> _confirmApiSecretRecovery() async {

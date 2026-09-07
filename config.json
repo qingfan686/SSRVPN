@@ -7,12 +7,9 @@
   ],
   "announcement_text": "清凡VPN 致力于为用户提供稳定、快速的网络加速服务。\n本软件完全免费，请勿用于商业用途。\n使用过程中如有问题，请联系作者反馈。",
   "announcement_enable": true,
-  "update": {
-    "enable": false,
-    "force_update": false,
-    "minimum_allow_version": "5.2.0",
-    "latest_version": "5.2.0",
-    "download_url": "https://drive.uc.cn/s/740697aec6cb4?public=1",
-    "update_log": ""
+  "manual_download": {
+    "enable_button": true,
+    "has_new_version": false,
+    "download_url": "https://drive.uc.cn/s/740697aec6cb4?public=1"
   }
 }

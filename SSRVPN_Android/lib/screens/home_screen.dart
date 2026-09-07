@@ -224,15 +224,11 @@ class HomeScreenState extends State<HomeScreen>
         onOpenNodes: _openNodeSelection,
         onShowAbout: () {
           final remoteConfig = RemoteConfigService.cached;
-          final hasUpdate = remoteConfig.updateEnabled &&
-              VersionComparator.isLower(
-                AppConstants.appVersion,
-                remoteConfig.latestVersion,
-              );
           showSsrvpnAboutDialog(
             context,
             announcementText: remoteConfig.announcementText,
-            hasUpdate: hasUpdate,
+            showDownloadButton: remoteConfig.manualDownload.enableButton,
+            hasNewVersion: remoteConfig.manualDownload.hasNewVersion,
             onCheckForUpdate: () => unawaited(_checkForUpdateManually()),
             onShowPerAppProxy: () {
               final settingsService = context.read<SettingsService>();
