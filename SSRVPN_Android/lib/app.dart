@@ -417,8 +417,7 @@ class _InitialSubscriptionPromptState
         .where((s) => s.url == url)
         .toList();
     if (existing.isNotEmpty) {
-      await SubscriptionScreenController.fromService(subService)
-          .refreshSubscription(existing.first.id);
+      await subService.refreshSubscription(existing.first.id);
       return;
     }
     await SubscriptionScreenController.fromService(subService)
